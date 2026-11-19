@@ -70,7 +70,7 @@ filename+=".txt"
 print("Loading...")
 
 #Load frames
-for i in range(len(images)): 
+for i in range(len(images)):
 	with Image.open(images[i]) as frame[i]:
 		frame[i].load()
 		frame[i]=frame[i].resize((width,height))
@@ -78,7 +78,7 @@ for i in range(len(images)):
 print(f"Loaded {len(images)}/{len(images)}")
 
 
-#Render Y -> X -> i -> y -> x -> pixel 
+#Render Y -> X -> i -> y -> x -> pixel
 for Y in range(YDivisions):
 	for X in range(XDivisions):
 		for i in range(len(images)):
@@ -106,5 +106,3 @@ with open(filename, "w") as f:
 		f.write(allPixel)
 print("All done! OwO")
 print("Saved under",filename)
-
-
