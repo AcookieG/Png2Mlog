@@ -11,7 +11,10 @@ width, height=128, 128
 XDivisions, YDivisions = 4, 4
 frames=264
 shavedFrames=0
-jumpedFrames=2
+jumpedFrames=20
+filename="Miku"
+
+
 
 #Def
 def pixelToASCII(pixel):
@@ -37,6 +40,7 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
+
 #Init
 colorRange=(126-32)/256
 colorOffset=32
@@ -57,10 +61,11 @@ n=0
 totalPixels=width*height*len(images)
 PxPb=blockWidth*blockHeight*len(images)
 
-if applyPalette: filename="filename-"+str(PxPb)+"pxpb-"+str(YDivisions*XDivisions)+"blocks--palette"
-elif splitChannels: filename="filename-"+str(PxPb)+"pxpb-x3-"+str(YDivisions*XDivisions)+"blocks--RGB"
-else: filename="filename-"+str(PxPb*3)+"pxpb-"+str(YDivisions*XDivisions)+"blocks"
+if applyPalette: filename+="-"+str(PxPb)+"pxpb-"+str(YDivisions*XDivisions)+"blocks--palette"
+elif splitChannels: filename+="-"+str(PxPb)+"pxpb-x3-"+str(YDivisions*XDivisions)+"blocks--RGB"
+else: filename+="-"+str(PxPb*3)+"pxpb-"+str(YDivisions*XDivisions)+"blocks"
 filename+=".txt"
+
 
 #Main
 
@@ -73,6 +78,7 @@ for i in range(len(images)):
 		frame[i]=frame[i].resize((width,height))
 
 print("Loaded",str(len(images))+"/"+str(len(images)))
+
 
 #Render Y -> X -> i -> y -> x -> pixel 
 for Y in range(YDivisions):
@@ -88,10 +94,13 @@ for Y in range(YDivisions):
 					else:
 						pixelUnicode=pixelToASCII(pixel)
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
+		#add and reset at every new block
 		n+=PxPb
 		allPixel+=allPixelBlock+"\n\n"
 		allPixelBlock=""
 		print(n,"/",totalPixels)
+
+
 with open(filename, "w") as f:
 	if splitChannels:
 		f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
@@ -99,3 +108,5 @@ with open(filename, "w") as f:
 		f.write(allPixel)
 print("All done!")
 print("Saved under",filename)
+
+
