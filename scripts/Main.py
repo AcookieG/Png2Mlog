@@ -1,5 +1,4 @@
-from math import sqrt
-from PIL import Image#, ImageShow
+from PIL import Image
 
 ### Frames should be named frame1, frame2 ...
 ### please have widths and heights be divisible by your X,Y divisons :3
@@ -33,17 +32,16 @@ def matchToPal(pixel,pal):
 	r=pixel[0]; g=pixel[1]; b=pixel[2];
 	for elem in pal:
 		rPal=int(elem[0:2], 16); gPal=int(elem[2:4], 16); bPal=int(elem[4:6], 16);
-		#distance=(r-rPal)**2+(g-gPal)**2+(b-bPal)**2
-		if (r-rPal)**2+(g-gPal)**2+(b-bPal)**2<shortest:
-			shortest=(r-rPal)**2+(g-gPal)**2+(b-bPal)**2
+		distance=(r-rPal)**2+(g-gPal)**2+(b-bPal)**2
+		if distance<shortest:
+			shortest=distance
 			pickedColor=alphabet[count]
 		count+=1
 	return pickedColor
 
 
 #Init
-colorRange=(126-32)/256
-colorOffset=32
+colorRange=(126-32)/256; colorOffset=32
 allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
 alphabet="0123456789abcdefghijklmnopqrstuvwxyz"
@@ -54,16 +52,16 @@ if jumpedFrames<=1: jumpedFrames=1
 images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, (frames-shavedFrames)//jumpedFrames)]
 frame=[None for i in range(0, (frames-shavedFrames)//jumpedFrames)]
 
-if splitChannels: XDivisions=1; YDivisions=1;
+if splitChannels: XDivisions,YDivisions =1,1
 blockWidth, blockHeight = int(width/XDivisions), int(height/YDivisions)
 
 n=0
 totalPixels=width*height*len(images)
 PxPb=blockWidth*blockHeight*len(images)
 
-if applyPalette: filename+="-"+str(PxPb)+"pxpb-"+str(YDivisions*XDivisions)+"blocks--palette"
-elif splitChannels: filename+="-"+str(PxPb)+"pxpb-x3-"+str(YDivisions*XDivisions)+"blocks--RGB"
-else: filename+="-"+str(PxPb*3)+"pxpb-"+str(YDivisions*XDivisions)+"blocks"
+if applyPalette: filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks--palette"
+elif splitChannels: filename+=f"-{PxPb}pxpb-x3-{YDivisions*XDivisions}blocks--RGB"
+else: filename+=f"-{PxPb*3}pxpb-{YDivisions*XDivisions}blocks"
 filename+=".txt"
 
 
@@ -77,7 +75,7 @@ for i in range(len(images)):
 		frame[i].load()
 		frame[i]=frame[i].resize((width,height))
 
-print("Loaded",str(len(images))+"/"+str(len(images)))
+print(f"Loaded {len(images)}/{len(images)}")
 
 
 #Render Y -> X -> i -> y -> x -> pixel 
@@ -106,7 +104,7 @@ with open(filename, "w") as f:
 		f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
 	else:
 		f.write(allPixel)
-print("All done!")
+print("All done! OwO")
 print("Saved under",filename)
 
 
