@@ -4,17 +4,29 @@ from PIL import Image
 ### please have widths and heights be divisible by your X,Y divisons :3
 
 #Config
-splitChannels=False
-applyPalette=True
-width, height=32, 18
-XDivisions, YDivisions = 16, 1
-frames=264
-shavedFrames=0
-jumpedFrames=0
-filename="Miku"
+if str(input(" | Use preset?\n(64x36, 32x3, 150, 0 , 1, filename, --Palette) (y/n) "))=="y":
+	#preset
+	width, height, XDivisions, YDivisions, frames, shavedFrames, jumpedFrames,filename, splitChannels, applyPalette = 64, 36, 32, 3, 150, 0 , 1, "filename", False, True
+else:
+	#custom
+	print(" | ")
+	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions ").split(","))
+	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+	print(" | ")
+	frames, shavedFrames, jumpedFrames=tuple(input(" | frames, shaved end frames, frame jump size ").split(","))
+	frames, shavedFrames, jumpedFrames=int(frames), int(shavedFrames), int(jumpedFrames)
+	print(" | ")
+	filename=str(input(" | filename "))
+	print(" | ")
+	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
+	print(" | ")
+	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be b22. (y/n):"))=="y")
+	print(" | ")
+
+print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)")
 
 
-#Def
+#Defwidth
 def pixelToASCII(pixel):
 	r=convertToASCII(pixel[0]); g=convertToASCII(pixel[1]); b=convertToASCII(pixel[2]);
 	return r, g, b
