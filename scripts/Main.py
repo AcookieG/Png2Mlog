@@ -7,7 +7,7 @@ from PIL import Image
 splitChannels=False
 applyPalette=False
 width, height=128, 128
-blockWidth, blockHeight = 32, 32
+numberOfBlocksX, numberOfBlocksY = 4, 4
 
 #Def
 def pixelPercentToASCII(pixel):
@@ -17,7 +17,7 @@ def pixelPercentToASCII(pixel):
 def convertToASCII(colorPercent):
 	#TODO shorten
 	colorUnicode=chr(round(colorPercent/colorRange+colorOffset))
-	if colorUnicode==(36 or 72): colorUnicode+=1
+	if colorUnicode==(34 or 39 or 92): colorUnicode+=1
 	return colorUnicode
 
 def matchToPal(pixel,pal):
@@ -37,8 +37,16 @@ colorOffset=32
 allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=""
 pal=[]
+
 #main
-numberOfBlocksX, numberOfBlocksY = int(width/blockWidth), int(height/blockHeight)
+if splitChannels: numberOfBlocksY=1; numberOfBlocksX=1;
+blockWidth, blockHeight = int(width/numberOfBlocksX), int(height/numberOfBlocksY)
+
+if applyPalette: filename="filename-"+str(blockWidth*blockHeight)+"pxpb-"+str(numberOfBlocksY*numberOfBlocksX)+"blocks--palette"
+elif splitChannels: filename="filename-"+str(blockWidth*blockHeight)+"pxpb-x3-"+str(numberOfBlocksY*numberOfBlocksX)+"blocks--RGB"
+else: filename="filename-"+str(blockWidth*blockHeight)+"pxpb-"+str(numberOfBlocksY*numberOfBlocksX)+"blocks"
+filename+=".txt"
+
 with Image.open("image.png") as Image:
 	Image.load()
 	Image.resize((width,height))
@@ -50,17 +58,18 @@ with Image.open("image.png") as Image:
 			for y in range(blockHeight):
 				for x in range(blockWidth):
 					pixel=tuple(Image.getpixel((x+X*blockWidth,y+Y*blockHeight)))
-					if splitChannels and applyPalette: a=1
-					elif  splitChannels and not(applyPalette): a=1
-					elif not(splitChannels) and not(applyPalette): a=1
+					if applyPalette: a=1
+					elif splitChannels:
+						pixelUnicode=pixelPercentToASCII(pixel)
+						allPixelR+=str(pixelUnicode[0]); allPixelG+=str(pixelUnicode[1]); allPixelB+=str(pixelUnicode[2]);
 					else:
 						pixelUnicode=pixelPercentToASCII(pixel)
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 			allPixel+=allPixelBlock+"\n\n"
-	filename="filename-"+str(len(allPixelBlock))+"pxpb-"+str(numberOfBlocksY*numberOfBlocksX)+"blocks.txt"
 	with open(filename, "w") as f:
 			if splitChannels:
-				a=1
-			else: f.write(allPixel)
+				f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
+			else:
+				f.write(allPixel)
 	print("All done!")
 	print("Saved under",filename)
