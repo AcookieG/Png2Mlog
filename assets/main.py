@@ -14,7 +14,6 @@ jumpedFrames=0
 filename="Miku"
 
 
-
 #Def
 def pixelToASCII(pixel):
 	r=convertToASCII(pixel[0]); g=convertToASCII(pixel[1]); b=convertToASCII(pixel[2]);
