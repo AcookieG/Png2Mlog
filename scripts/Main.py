@@ -7,11 +7,11 @@ from PIL import Image#, ImageShow
 #Config
 splitChannels=False
 applyPalette=True
-width, height=128, 128
-XDivisions, YDivisions = 4, 4
+width, height=32, 18
+XDivisions, YDivisions = 16, 1
 frames=264
 shavedFrames=0
-jumpedFrames=20
+jumpedFrames=0
 filename="Miku"
 
 
