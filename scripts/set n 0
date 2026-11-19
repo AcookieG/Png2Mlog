@@ -1,0 +1,30 @@
+set n 0
+set R sd fsd fsd fs fdds fdsf sfd ds f
+set G sd fds fds fds fsd fsd fsfd dsf sfd
+set B nvids  fds dsf ds fsd fdsf ds fsdfdsf ds
+sensor w R @size
+op sqrt w w 32
+op round w w 32
+op sub m 91 40
+op div m 256 m
+set y w
+op sub y y 1
+set x 0
+read r R n
+read g G n
+read b B n
+op add n n 1
+op sub r r 40
+op sub g g 40
+op sub b b 40
+op mul r r m
+op mul g g m
+op mul b b m
+draw color r g b 255 0 0
+draw rect x y -1 1 0 0
+op add x x 1
+jump 12 lessThan x w
+drawflush display1
+set x 0
+op sub y y 1
+jump 12 greaterThanEq y 0
