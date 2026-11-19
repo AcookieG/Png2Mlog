@@ -20,7 +20,7 @@ else:
 	print(" | ")
 	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 	print(" | ")
-	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be b22. (y/n):"))=="y")
+	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
 	print(" | ")
 
 print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)")
