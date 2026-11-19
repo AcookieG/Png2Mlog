@@ -10,13 +10,13 @@ if str(input(" | Use preset?\n(64x36, 32x3, 150, 0 , 1, filename, --Palette) (y/
 else:
 	#custom
 	print(" | ")
-	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions ").split(","))
+	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
 	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
 	print(" | ")
-	frames, shavedFrames, jumpedFrames=tuple(input(" | frames, shaved end frames, frame jump size ").split(","))
+	frames, shavedFrames, jumpedFrames=tuple(input(" | frames, shaved end frames, frame jump size: ").split(","))
 	frames, shavedFrames, jumpedFrames=int(frames), int(shavedFrames), int(jumpedFrames)
 	print(" | ")
-	filename=str(input(" | filename "))
+	filename=str(input(" | filename: "))
 	print(" | ")
 	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 	print(" | ")
