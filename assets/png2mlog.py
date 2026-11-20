@@ -38,7 +38,7 @@ def convertToASCII(color):
 	return colorUnicode
 
 def matchToPal(pixel,pal):
-	shortest=2**32
+	shortest=2**40
 	pickedColor=0
 	count=0
 	r=pixel[0]; g=pixel[1]; b=pixel[2];
