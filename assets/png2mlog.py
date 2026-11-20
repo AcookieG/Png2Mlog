@@ -1,12 +1,13 @@
 from PIL import Image
+from timeit import default_timer
 
 ### Frames should be named frame1, frame2 ...
 ### please have widths and heights be divisible by your X,Y divisons :3
 
 #Config
-if str(input(" | Use preset?\n(64x36, 32x6, 300, 0 , 1, filename, --Palette) (y/n) "))=="y":
+if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
 	#preset
-	width, height, XDivisions, YDivisions, frames, shavedFrames, jumpedFrames,filename, splitChannels, applyPalette = 64, 36, 32, 6, 300, 0 , 1, "filename", False, True
+	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
 else:
 	#custom
 	print(" | ")
@@ -14,7 +15,7 @@ else:
 	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
 	print(" | ")
 	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
-	frames, shavedFrames, jumpedFrames=int(frames), 0, int(jumpedFrames)
+	frames, jumpedFrames=int(frames), int(jumpedFrames)
 	print(" | ")
 	filename=str(input(" | filename: "))
 	print(" | ")
@@ -60,8 +61,8 @@ pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","77
 items=[] #TODO add item ID in base36
 
 if jumpedFrames<=1: jumpedFrames=1
-images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, (frames-shavedFrames)//jumpedFrames)]
-frame=[None for i in range(0, (frames-shavedFrames)//jumpedFrames)]
+images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, frames//jumpedFrames)]
+frame=[None for i in range(0, frames//jumpedFrames)]
 
 if splitChannels: XDivisions,YDivisions =1,1
 blockWidth, blockHeight = int(width/XDivisions), int(height/YDivisions)
@@ -77,7 +78,7 @@ filename+=".txt"
 
 
 #Main
-
+t1=default_timer()
 print("Loading...")
 
 #Load frames
@@ -86,8 +87,8 @@ for i in range(len(images)):
 		frame[i].load()
 		frame[i]=frame[i].resize((width,height))
 
-print(f"Loaded {len(images)}/{len(images)}")
-
+t2=default_timer()
+print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1)}s")
 
 #Render Y -> X -> i -> y -> x -> pixel
 for Y in range(YDivisions):
@@ -107,7 +108,8 @@ for Y in range(YDivisions):
 		n+=PxPb
 		allPixel+=allPixelBlock+"\n\n"
 		allPixelBlock=""
-		print(n,"/",totalPixels, end="\r")
+		t2=default_timer()
+		print(f"{n} / {totalPixels} - {round(t2-t1)}s", end="\r")
 
 
 with open(filename, "w") as f:
@@ -115,5 +117,5 @@ with open(filename, "w") as f:
 		f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
 	else:
 		f.write(allPixel)
-print("All done! OwO")
+print(f"All done! - {round(t2-t1)}s OwO       ")
 print("Saved under",filename)
