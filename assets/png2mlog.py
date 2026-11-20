@@ -4,17 +4,17 @@ from PIL import Image
 ### please have widths and heights be divisible by your X,Y divisons :3
 
 #Config
-if str(input(" | Use preset?\n(64x36, 32x3, 150, 0 , 1, filename, --Palette) (y/n) "))=="y":
+if str(input(" | Use preset?\n(64x36, 32x6, 300, 0 , 1, filename, --Palette) (y/n) "))=="y":
 	#preset
-	width, height, XDivisions, YDivisions, frames, shavedFrames, jumpedFrames,filename, splitChannels, applyPalette = 64, 36, 32, 3, 150, 0 , 1, "filename", False, True
+	width, height, XDivisions, YDivisions, frames, shavedFrames, jumpedFrames,filename, splitChannels, applyPalette = 64, 36, 32, 6, 300, 0 , 1, "filename", False, True
 else:
 	#custom
 	print(" | ")
 	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
 	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
 	print(" | ")
-	frames, shavedFrames, jumpedFrames=tuple(input(" | frames, shaved end frames, frame jump size: ").split(","))
-	frames, shavedFrames, jumpedFrames=int(frames), int(shavedFrames), int(jumpedFrames)
+	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
+	frames, shavedFrames, jumpedFrames=int(frames), 0, int(jumpedFrames)
 	print(" | ")
 	filename=str(input(" | filename: "))
 	print(" | ")
@@ -107,7 +107,7 @@ for Y in range(YDivisions):
 		n+=PxPb
 		allPixel+=allPixelBlock+"\n\n"
 		allPixelBlock=""
-		print(n,"/",totalPixels)
+		print(n,"/",totalPixels, end="\r")
 
 
 with open(filename, "w") as f:
