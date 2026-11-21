@@ -6,34 +6,38 @@ from pymsch import Block, Content, Schematic, ProcessorConfig
 ### Frames should be named frame1, frame2 ...
 ### please have widths and heights be divisible by your X,Y divisons :3
 
-#Parse
-
+schem=Schematic()
 parser=argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
+
+#Parse
 
 parser.add_argument("--xy", nargs=2, help="Width, Height. int int", dest="xy", default=(64,36), type=str)
 parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise divisions. int int", dest="XY", default=(32,6), type=str)
 parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", dest="frames", default=250, type=int)
 parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
 
-parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="filename", type=str)
+parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="", type=str)
 parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. Boolean", dest="splitChannels", default=False, type=bool)
-parser.add_argument("-p", "--palette", nargs="?", help="apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean", dest="applyPalette", default=True, type=bool)
-parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean", type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. Boolean", dest="save", default=False, type=bool)
+parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, , --Palette. Boolean", type=bool)
 
 parameters=parser.parse_args()
 [width, height]=parameters.xy
 [XDivisions, YDivisions]=parameters.XY
-width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
 frames=parameters.frames
 jumpedFrames=parameters.jumpedFrames
 filename=parameters.filename
 splitChannels=parameters.splitChannels
 applyPalette=parameters.applyPalette
+save=parameters.save
+splitChannels, applyPalette, save = bool(splitChannels), bool(applyPalette), bool(save)
 if splitChannels: channels=" --channels"
 else: channels=""
 if applyPalette: palette=" --palette"
 else: palette=""
-print(f" | selected parameters: {width}x{height}, XY={XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
+print(f" | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 
 #Config
 """
@@ -83,6 +87,26 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
+def addProcessor(column, line, text):
+	codeConf=ProcessorConfig(f'''set n 0
+set li 0
+set VAR "{text}"
+sensor blockSize VAR @size
+op sub array @links 1
+read pixel VAR n
+getlink link li
+op add li li 1
+op add n n 1
+op sub pixel pixel 60
+lookup item pixel pixel
+control config link pixel 0 0 0
+jump 5 lessThan li array
+jump 36 equal STOP 1
+write "STOP" processor1 STOP
+set li 0
+jump 5 lessThan n blockSize
+end''', [])
+	schem.add_block(Block(Content.LOGIC_PROCESSOR, column*2, line*2, codeConf, 0))
 
 #Init
 colorRange=(126-32)/256; colorOffset=32
@@ -104,8 +128,6 @@ PxPb=blockWidth*blockHeight*len(images)
 if applyPalette: filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks--palette"
 elif splitChannels: filename+=f"-{PxPb}pxpb-x3-{YDivisions*XDivisions}blocks--RGB"
 else: filename+=f"-{PxPb*3}pxpb-{YDivisions*XDivisions}blocks"
-filename+=".txt"
-
 
 #Main
 t1=default_timer()
@@ -118,45 +140,69 @@ for i in range(len(images)):
 		frame[i]=frame[i].resize((width,height))
 
 t2=default_timer()
-print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1)}s")
+print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1)}s\n")
 
-#Render Y -> X -> i -> y -> x -> pixel
-for Y in range(YDivisions):
-	for X in range(XDivisions):
-		for i in range(len(images)):
-			for y in range(blockHeight):
-				for x in range(blockWidth):
-					pixel=tuple(frame[i].getpixel((x+X*blockWidth,y+Y*blockHeight))) #returns (r, g, b, a) with rgba<256.
-					if applyPalette: allPixelBlock+=str(matchToPal(pixel,pal))
-					elif splitChannels:
-						pixelUnicode=pixelToASCII(pixel)
-						allPixelR+=str(pixelUnicode[0]); allPixelG+=str(pixelUnicode[1]); allPixelB+=str(pixelUnicode[2]);
-					else:
-						pixelUnicode=pixelToASCII(pixel)
-						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
-		#add and reset at every new block
-		n+=PxPb
-		allPixel+=allPixelBlock+"\n\n"
-		allPixelBlock=""
-		t2=default_timer()
-		print(f"{n} / {totalPixels} - {round(t2-t1)}s", end="\r")
+#Load msch file
+with open(filename+".3msch", "w") as m:
 
+	#Render Y -> X -> i -> y -> x -> pixel
+	for Y in range(YDivisions):
+		schem.set_tag('name', str(Y+1))
+		schem.set_tag('description', '')
+		for X in range(XDivisions):
+			for i in range(len(images)):
+				for y in range(blockHeight):
+					for x in range(blockWidth):
+						pixel=tuple(frame[i].getpixel((x+X*blockWidth,y+Y*blockHeight))) #returns (r, g, b, a) with rgba<256.
+						if applyPalette: allPixelBlock+=str(matchToPal(pixel,pal))
+						elif splitChannels:
+							pixelUnicode=pixelToASCII(pixel)
+							allPixelR+=str(pixelUnicode[0]); allPixelG+=str(pixelUnicode[1]); allPixelB+=str(pixelUnicode[2]);
+						else:
+							pixelUnicode=pixelToASCII(pixel)
+							allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
+			#add and reset at every new block
+			n+=PxPb
+			allPixel+=allPixelBlock+"\n\n"
+			codeConf=ProcessorConfig(f'''set n 0
+set li 0
+set VAR "{allPixelBlock}"
+sensor blockSize VAR @size
+op sub array @links 1
+read pixel VAR n
+getlink link li
+op add li li 1
+op add n n 1
+op sub pixel pixel 60
+lookup item pixel pixel
+control config link pixel 0 0 0
+jump 5 lessThan li array
+jump 36 equal STOP 1
+write "STOP" processor1 STOP
+set li 0
+jump 5 lessThan n blockSize
+end''', []) #MLog code block
+			schem.add_block(Block(Content.LOGIC_PROCESSOR, X*2, Y*2, codeConf, 0))
+			allPixelBlock=""
+			t2=default_timer()
+			print(f"{n} / {totalPixels} - {round(t2-t1)}s", end="\r")
+		m.write(f"\n\n-----------------------------------------------\n====== BLOCK LINE {Y+1} ======\n-----------------------------------------------\n\n{schem.write_str()}") #Write 3 msch file
+		schem.__init__()
 
-with open(filename, "w") as f:
+#Load txt file
+with open(filename+".txt", "w") as f:
 	if splitChannels:
 		f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
 	else:
 		f.write(allPixel)
+
 print(f"All done! - {round(t2-t1)}s OwO       ")
 print("Saved under",filename)
 
-#schem
-"""
-proc=ProcessorConfig(
-f'''
-set n 0
+#Schem Code
+code=f'''set n 0
 set li 0
-set VAR "{pal}"
+set VAR "{colorRange}"
 sensor blockSize VAR @size
 op sub array @links 1
 read pixel VAR n
@@ -172,12 +218,3 @@ write "STOP" processor1 STOP
 set li 0
 jump 5 lessThan n blockSize
 end'''
-, []
-)
-
-schem=Schematic()
-schem.set_tag('name', filename)
-schem.set_tag('description', '')
-schem.add_block(Block(Content.LOGIC_PROCESSOR, 0, 0, proc, 0))
-print(f"\n{schem.write_str()}")
-"""
