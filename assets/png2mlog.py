@@ -77,7 +77,7 @@ def matchToPal(pixel,pal):
 		distance=(r-rPal)**2+(g-gPal)**2+(b-bPal)**2
 		if distance<shortest:
 			shortest=distance
-			pickedColor=chr(count+32)
+			pickedColor=chr(count+60)
 		count+=1
 	return pickedColor
 
@@ -86,9 +86,7 @@ def matchToPal(pixel,pal):
 colorRange=(126-32)/256; colorOffset=32
 allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
-alphabet="0123456789abcdefghijklmnopqrstuvwxyz"
 pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a","5e988d","df824d"]
-items=[] #TODO add item ID in base36
 
 if jumpedFrames<=1: jumpedFrames=1
 images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, frames//jumpedFrames)]

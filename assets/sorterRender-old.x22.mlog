@@ -2,7 +2,7 @@ set n 0
 set li 0
 set VAR "INSERT_TEXT_HERE"
 sensor blockSize VAR @size
-op sub array @links 2
+op sub array @links 1
 read pixel VAR n
 getlink link li
 op add li li 1
