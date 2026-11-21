@@ -1,30 +1,60 @@
 from PIL import Image
 from timeit import default_timer
+import argparse
 
 ### Frames should be named frame1, frame2 ...
 ### please have widths and heights be divisible by your X,Y divisons :3
 
-#Config
-if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
-	#preset
-	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
-else:
-	#custom
-	print(" | ")
-	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
-	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
-	print(" | ")
-	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
-	frames, jumpedFrames=int(frames), int(jumpedFrames)
-	print(" | ")
-	filename=str(input(" | filename: "))
-	print(" | ")
-	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
-	print(" | ")
-	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-	print(" | ")
+#Parse
 
-print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)")
+parser=argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
+
+parser.add_argument("--xy", nargs=2, help="Width, Height. int int", dest="xy", default=(64,36), type=str)
+parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise divisions. int int", dest="XY", default=(32,6), type=str)
+parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", dest="frames", default=250, type=int)
+parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
+
+parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="filename", type=str)
+parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. Boolean", dest="splitChannels", default=False, type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="apply Mindustry's 26 sorter colors. Boolean", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean", type=bool)
+
+parameters=parser.parse_args()
+[width, height]=parameters.xy
+[XDivisions, YDivisions]=parameters.XY
+width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+frames=parameters.frames
+jumpedFrames=parameters.jumpedFrames
+filename=parameters.filename
+splitChannels=parameters.splitChannels
+applyPalette=parameters.applyPalette
+if splitChannels: channels="--channels"
+else: channels=""
+if applyPalette: palette="--palette"
+else: palette=""
+print(f" | selected parameters: {width}x{height}, XY={XDivisions}x{YDivisions}, @{frames//jumpedFrames}, {channels} {palette}")
+
+#Config
+# if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
+#	#preset
+#	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
+#else:
+#	#custom
+#	print(" | ")
+#	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
+#	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+#	print(" | ")
+#	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
+#	frames, jumpedFrames=int(frames), int(jumpedFrames)
+#	print(" | ")
+#	filename=str(input(" | filename: "))
+#	print(" | ")
+#	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
+#	print(" | ")
+#	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
+#	print(" | ")
+
+print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
 
 
 #Defwidth
