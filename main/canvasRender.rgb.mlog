@@ -6,7 +6,7 @@ sensor w R @size
 op sqrt w w 32
 op round w w 32
 op sub m 91 40
-op div m 256 mINSERTTEXTHERE
+op div m 256 m
 set y w
 op sub y y 1
 set x 0
