@@ -1,6 +1,7 @@
 from PIL import Image
 from timeit import default_timer
 import argparse
+from pymsch import Block, Content, Schematic, ProcessorConfig
 
 ### Frames should be named frame1, frame2 ...
 ### please have widths and heights be divisible by your X,Y divisons :3
@@ -35,25 +36,26 @@ else: palette=""
 print(f" | selected parameters: {width}x{height}, XY={XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 
 #Config
-# if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
-#	#preset
-#	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
-#else:
-#	#custom
-#	print(" | ")
-#	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
-#	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
-#	print(" | ")
-#	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
-#	frames, jumpedFrames=int(frames), int(jumpedFrames)
-#	print(" | ")
-#	filename=str(input(" | filename: "))
-#	print(" | ")
-#	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
-#	print(" | ")
-#	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-#	print(" | ")
-
+"""
+ if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
+	#preset
+	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
+else:
+	#custom
+	print(" | ")
+	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
+	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+	print(" | ")
+	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
+	frames, jumpedFrames=int(frames), int(jumpedFrames)
+	print(" | ")
+	filename=str(input(" | filename: "))
+	print(" | ")
+	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
+	print(" | ")
+	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
+	print(" | ")
+"""
 print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
 
 
@@ -147,3 +149,35 @@ with open(filename, "w") as f:
 		f.write(allPixel)
 print(f"All done! - {round(t2-t1)}s OwO       ")
 print("Saved under",filename)
+
+#schem
+"""
+proc=ProcessorConfig(
+f'''
+set n 0
+set li 0
+set VAR "{pal}"
+sensor blockSize VAR @size
+op sub array @links 1
+read pixel VAR n
+getlink link li
+op add li li 1
+op add n n 1
+op sub pixel pixel 60
+lookup item pixel pixel
+control config link pixel 0 0 0
+jump 5 lessThan li array
+jump 36 equal STOP 1
+write "STOP" processor1 STOP
+set li 0
+jump 5 lessThan n blockSize
+end'''
+, []
+)
+
+schem=Schematic()
+schem.set_tag('name', filename)
+schem.set_tag('description', '')
+schem.add_block(Block(Content.LOGIC_PROCESSOR, 0, 0, proc, 0))
+print(f"\n{schem.write_str()}")
+"""
