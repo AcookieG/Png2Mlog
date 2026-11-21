@@ -28,11 +28,11 @@ jumpedFrames=parameters.jumpedFrames
 filename=parameters.filename
 splitChannels=parameters.splitChannels
 applyPalette=parameters.applyPalette
-if splitChannels: channels="--channels"
+if splitChannels: channels=" --channels"
 else: channels=""
-if applyPalette: palette="--palette"
+if applyPalette: palette=" --palette"
 else: palette=""
-print(f" | selected parameters: {width}x{height}, XY={XDivisions}x{YDivisions}, @{frames//jumpedFrames}, {channels} {palette}")
+print(f" | selected parameters: {width}x{height}, XY={XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 
 #Config
 # if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
