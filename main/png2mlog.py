@@ -39,31 +39,25 @@ if applyPalette: palette=" --palette"
 else: palette=""
 print(f" | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 
-#Config
+#Config (Deprecated)
 """
  if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
 	#preset
 	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
 else:
 	#custom
-	print(" | ")
 	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
 	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
-	print(" | ")
 	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
 	frames, jumpedFrames=int(frames), int(jumpedFrames)
-	print(" | ")
 	filename=str(input(" | filename: "))
-	print(" | ")
 	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
-	print(" | ")
 	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-	print(" | ")
 """
 print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
 
 
-#Defwidth
+#Def
 def pixelToASCII(pixel):
 	r=convertToASCII(pixel[0]); g=convertToASCII(pixel[1]); b=convertToASCII(pixel[2]);
 	return r, g, b
@@ -86,27 +80,6 @@ def matchToPal(pixel,pal):
 			pickedColor=chr(count+60)
 		count+=1
 	return pickedColor
-
-def addProcessor(column, line, text):
-	codeConf=ProcessorConfig(f'''set n 0
-set li 0
-set VAR "{text}"
-sensor blockSize VAR @size
-op sub array @links 1
-read pixel VAR n
-getlink link li
-op add li li 1
-op add n n 1
-op sub pixel pixel 60
-lookup item pixel pixel
-control config link pixel 0 0 0
-jump 5 lessThan li array
-jump 36 equal STOP 1
-write "STOP" processor1 STOP
-set li 0
-jump 5 lessThan n blockSize
-end''', [])
-	schem.add_block(Block(Content.LOGIC_PROCESSOR, column*2, line*2, codeConf, 0))
 
 #Init
 colorRange=(126-32)/256; colorOffset=32
@@ -144,7 +117,7 @@ print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1)}s\n")
 
 #Load msch file
 with open(filename+".3msch", "w") as m:
-
+	m.write(" (By AcookieG, 2026)")
 	#Render Y -> X -> i -> y -> x -> pixel
 	for Y in range(YDivisions):
 		schem.set_tag('name', str(Y+1))
@@ -199,22 +172,4 @@ with open(filename+".txt", "w") as f:
 print(f"All done! - {round(t2-t1)}s OwO       ")
 print("Saved under",filename)
 
-#Schem Code
-code=f'''set n 0
-set li 0
-set VAR "{colorRange}"
-sensor blockSize VAR @size
-op sub array @links 1
-read pixel VAR n
-getlink link li
-op add li li 1
-op add n n 1
-op sub pixel pixel 60
-lookup item pixel pixel
-control config link pixel 0 0 0
-jump 5 lessThan li array
-jump 36 equal STOP 1
-write "STOP" processor1 STOP
-set li 0
-jump 5 lessThan n blockSize
-end'''
+
