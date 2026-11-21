@@ -4,10 +4,10 @@
 ## How to use:
 
 Convert your video to individual frames (I use ffmpeg)   
-	`❯ ffmpeg -i ~/video.mp4 frame%d.png   `
+	`❯ ffmpeg -i ~/video.mp4 frame%d.png`   
 
 Use your cli to execute the script   
-	`❯ python /png2mlog.py   `
+	`❯ python /png2mlog.py`   
 
 options:   
 	`-h, --help`					 show this help message and exit   
@@ -16,7 +16,7 @@ options:
 	`-f, --frames [FRAMES]`			 Amount of frames. int   
 	`-j, --jump [JUMPEDFRAMES]`		 Frame jump size. int   
 	`-o, --output, --filename [FILENAME]`   
-	`-c, --channels [SPLITCHANNELS]	 Split R, G and B color channels in three strings. Boolean   
+	`-c, --channels [SPLITCHANNELS]`	 Split R, G and B color channels in three strings. Boolean   
 	`-p, --palette [APPLYPALETTE]`	 apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean   
 	`-d, --default [DEFAULT]`		 (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean   
 	
