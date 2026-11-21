@@ -3,3 +3,4 @@
 ## Dependencies:
 Python 3.14 - https://www.python.org/downloads/release/python-31410/ 
 PIL - https://python-pillow.org/
+Argparse - https://github.com/python/cpython/blob/3.15/Lib/argparse.py
