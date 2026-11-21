@@ -1,0 +1,37 @@
+set n 0
+set li 0
+set VAR "INSERT_TEXT_HERE"
+sensor blockSize VAR @size
+op sub array @links 2
+read pixel VAR n
+getlink link li
+op add li li 1
+op add n n 1
+select pixel equal pixel 48 @copper pixel
+select pixel equal pixel 49 @lead pixel
+select pixel equal pixel 50 @metaglass pixel
+select pixel equal pixel 51 @graphite pixel
+select pixel equal pixel 52 @sand pixel
+select pixel equal pixel 53 @coal pixel
+select pixel equal pixel 54 @titanium pixel
+select pixel equal pixel 55 @thorium pixel
+select pixel equal pixel 56 @scrap pixel
+select pixel equal pixel 57 @silicon pixel
+select pixel equal pixel 65 @plastanium pixel
+select pixel equal pixel 66 @phase-fabric pixel
+select pixel equal pixel 67 @surge-alloy pixel
+select pixel equal pixel 68 @spore-pod pixel
+select pixel equal pixel 69 @blast-compound pixel
+select pixel equal pixel 70 @pyratite pixel
+select pixel equal pixel 71 @beryllium pixel
+select pixel equal pixel 72 @tungsten pixel
+select pixel equal pixel 73 @oxide pixel
+select pixel equal pixel 74 @carbide pixel
+select pixel equal pixel 75 @fissile-matter pixel
+control config link pixel 0 0 0
+jump 5 lessThan li array
+jump 36 equal STOP 1
+write "STOP" processor1 STOP
+set li 0
+jump 5 lessThan n blockSize
+end

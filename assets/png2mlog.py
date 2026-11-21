@@ -16,7 +16,7 @@ parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest
 
 parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="filename", type=str)
 parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. Boolean", dest="splitChannels", default=False, type=bool)
-parser.add_argument("-p", "--palette", nargs="?", help="apply Mindustry's 26 sorter colors. Boolean", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean", dest="applyPalette", default=True, type=bool)
 parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean", type=bool)
 
 parameters=parser.parse_args()
@@ -77,7 +77,7 @@ def matchToPal(pixel,pal):
 		distance=(r-rPal)**2+(g-gPal)**2+(b-bPal)**2
 		if distance<shortest:
 			shortest=distance
-			pickedColor=alphabet[count]
+			pickedColor=chr(count+32)
 		count+=1
 	return pickedColor
 
