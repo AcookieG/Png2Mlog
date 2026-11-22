@@ -31,18 +31,10 @@ parameters=parser.parse_args()
 [width, height]=parameters.xy
 [XDivisions, YDivisions]=parameters.XY
 width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
-frames=parameters.frames
-jumpedFrames=parameters.jumpedFrames
-filename=parameters.filename
-splitChannels=parameters.splitChannels
-applyPalette=parameters.applyPalette
-save=parameters.save
-splitChannels, applyPalette, save = bool(splitChannels), bool(applyPalette), bool(save)
-if splitChannels: channels=" --channels"
-else: channels=""
-if applyPalette: palette=" --palette"
-else: palette=""
-print(f" | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
+frames=parameters.frames; jumpedFrames=parameters.jumpedFrames;
+filename=parameters.filename; save=parameters.save;
+splitChannels=bool(parameters.splitChannels); applyPalette=bool(parameters.applyPalette);
+
 
 #Config (Deprecated)
 # if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
@@ -57,9 +49,6 @@ print(f" | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDiv
 #	filename=str(input(" | filename: "))
 #	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 #	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-
-print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
-
 
 #Def
 def pixelToASCII(pixel):
@@ -120,14 +109,22 @@ n=0
 totalPixels=width*height*len(images)
 PxPb=blockWidth*blockHeight*len(images)
 
-#Parameters
-if applyPalette: filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks--palette"
-elif splitChannels: filename+=f"-{PxPb}pxpb-x3-{YDivisions*XDivisions}blocks--RGB"
-else: filename+=f"-{PxPb*3}pxpb-{YDivisions*XDivisions}blocks"
+#Filename
+filenameTags=""
+if applyPalette:
+	palette=" --palette"
+	filenameTags+="--palette"
+else: palette="";
+if splitChannels and not applyPalette:
+	channels=" --channels"
+	filenameTags+="--channels"
+else: channels="";
+filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
 
 #__main__
-
 t1=default_timer()
+print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
+print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 print("Loading...")
 
 #Load frames
