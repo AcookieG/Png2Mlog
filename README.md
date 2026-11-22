@@ -37,7 +37,7 @@ returns
 Colors saved under !name-4500pxpb-32blocks--palette--bottom.txt
 ```
 Accompanied by the text file `!name-4500pxpb-32blocks--palette--bottom.txt`   
-and the schematic `!name-4500pxpb-32blocks--palette--bottom.msch` containing a 32x18 Sorter grid and 32 processors.  
+and the schematic `!name-4500pxpb-32blocks--palette--bottom.msch` containing a 32x18 Sorter grid and 32 processors rendering 250 frames.  
 ## Dependencies:
 Python 3.14 - https://www.python.org/downloads/release/python-31410/    
 PIL - https://python-pillow.org/   
