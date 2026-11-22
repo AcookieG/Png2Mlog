@@ -1,12 +1,17 @@
+#(By AcookieG, 2026)
+# Frames should be named frame1, frame2 ...
+# please have widths and heights be divisible by your X,Y divisons :3
+# Ideally have divisions be a multiple of 2
+
 from PIL import Image
 from timeit import default_timer
 import argparse
 from pymsch import Block, Content, Schematic, ProcessorConfig
 
-### Frames should be named frame1, frame2 ...
-### please have widths and heights be divisible by your X,Y divisons :3
 
 schem=Schematic()
+schem.set_tag('name', "!name")
+schem.set_tag('description', '')
 parser=argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
 
 #Parse
@@ -54,7 +59,7 @@ else:
 	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
 """
-print(" | Result will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
+print(" | Results will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
 
 
 #Def
@@ -113,31 +118,42 @@ for i in range(len(images)):
 		frame[i]=frame[i].resize((width,height))
 
 t2=default_timer()
-print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1)}s\n")
+print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1, 2)}s\n")
 
 #Load msch file
-with open(filename+".3msch", "w") as m:
-	m.write(" (By AcookieG, 2026)")
-	#Render Y -> X -> i -> y -> x -> pixel
+
+for X in range(XDivisions):
+	#Add sorters
+	if applyPalette:
+		for y in range(height):
+			for x in range(blockWidth):
+				schem.add_block(Block(Content.SORTER, x+2*X, -y+1, None, 0))
+
+	#Render X -> Y -> i -> y -> x -> pixel
 	for Y in range(YDivisions):
-		schem.set_tag('name', str(Y+1))
-		schem.set_tag('description', '')
-		for X in range(XDivisions):
-			for i in range(len(images)):
-				for y in range(blockHeight):
-					for x in range(blockWidth):
-						pixel=tuple(frame[i].getpixel((x+X*blockWidth,y+Y*blockHeight))) #returns (r, g, b, a) with rgba<256.
-						if applyPalette: allPixelBlock+=str(matchToPal(pixel,pal))
-						elif splitChannels:
-							pixelUnicode=pixelToASCII(pixel)
-							allPixelR+=str(pixelUnicode[0]); allPixelG+=str(pixelUnicode[1]); allPixelB+=str(pixelUnicode[2]);
-						else:
-							pixelUnicode=pixelToASCII(pixel)
-							allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
-			#add and reset at every new block
-			n+=PxPb
-			allPixel+=allPixelBlock+"\n\n"
-			codeConf=ProcessorConfig(f'''set n 0
+		for i in range(len(images)):
+			for y in range(blockHeight):
+				for x in range(blockWidth):
+					pixel=tuple(frame[i].getpixel((x+X*blockWidth,y+Y*blockHeight))) #returns (r, g, b, a) with rgba<256.
+					if applyPalette: allPixelBlock+=matchToPal(pixel,pal)
+					elif splitChannels:
+						pixelUnicode=pixelToASCII(pixel)
+						allPixelR+=str(pixelUnicode[0]); allPixelG+=str(pixelUnicode[1]); allPixelB+=str(pixelUnicode[2]);
+					else:
+						pixelUnicode=pixelToASCII(pixel)
+						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
+		n+=PxPb
+		t2=default_timer()
+		print(f"{n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+
+		#Add and reset at block
+		allPixel+=allPixelBlock+"\n\n"
+
+		#MLog Palette + Schematic
+		if applyPalette:
+			codeConf=ProcessorConfig(f'''set LINE {Y+1}
+set COLUMN {X+1}
+set n 0
 set li 0
 set VAR "{allPixelBlock}"
 sensor blockSize VAR @size
@@ -154,13 +170,23 @@ jump 36 equal STOP 1
 write "STOP" processor1 STOP
 set li 0
 jump 5 lessThan n blockSize
-end''', []) #MLog code block
-			schem.add_block(Block(Content.LOGIC_PROCESSOR, X*2, Y*2, codeConf, 0))
-			allPixelBlock=""
-			t2=default_timer()
-			print(f"{n} / {totalPixels} - {round(t2-t1)}s", end="\r")
-		m.write(f"\n\n-----------------------------------------------\n====== BLOCK LINE {Y+1} ======\n-----------------------------------------------\n\n{schem.write_str()}") #Write 3 msch file
-		schem.__init__()
+end''', [])
+			if Y<YDivisions//2: procX, procY=X*2, YDivisions-Y*2
+			else: procX, procY=X*2, -height-Y*2+YDivisions
+			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+
+		#Mlog RGB
+		elif splitChannels: codeConf=""
+
+		#Mlog Canvas
+		else: splitChannels: codeConf=""
+
+		allPixelBlock=""
+
+#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
+with open(filename+".msch", "wb") as m:
+	m.write(schem._write())
+schem.__init__()
 
 #Load txt file
 with open(filename+".txt", "w") as f:
@@ -169,7 +195,7 @@ with open(filename+".txt", "w") as f:
 	else:
 		f.write(allPixel)
 
-print(f"All done! - {round(t2-t1)}s OwO       ")
+print(f"All done! - {round(t2-t1, 2)}s OwO       ")
 print("Saved under",filename)
 
 
