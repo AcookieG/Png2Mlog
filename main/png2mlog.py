@@ -11,8 +11,7 @@ from pymsch import Block, Content, Schematic, ProcessorConfig, ProcessorLink
 #schem init
 
 schem = Schematic()
-schem.set_tag('name', "!name")
-schem.set_tag('description', '')
+schem.set_tag('description', 'By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[]')
 parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
 
 #Parse init
@@ -102,27 +101,30 @@ allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
 pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a"] #,"5e988d","df824d"
 
-#Warnings
-execute=True
-execute=attention(YDivisions%2==1, execute, "YDivisions%2==1")
-execute=attention(XDivisions%2==1, execute, "YDivisions%2==1")
-execute=attention(XDivisions==width, execute, "YDivisions%2==1")
-execute=attention(bottomProcs and height>18, execute, "bottomProcs and height>18")
-if not execute: frames=0
-
-#Frames
-if jumpedFrames<=1: jumpedFrames=1
-images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, frames//jumpedFrames)]
-frame=[None for i in range(0, frames//jumpedFrames)]
-
 #Channels
 if splitChannels: XDivisions,YDivisions =1,1
 blockWidth, blockHeight = int(width/XDivisions), int(height/YDivisions)
 
-#Pixels
+#Pixels and Frames
+if jumpedFrames<=1: jumpedFrames=1
+frames=frames//jumpedFrames
+totalPixels=width*height*frames
+PxPb=blockWidth*blockHeight*frames
 n=0
-totalPixels=width*height*len(images)
-PxPb=blockWidth*blockHeight*len(images)
+
+#Warnings
+execute=True
+execute=attention(height%2==1, execute, "Odd height")
+execute=attention(YDivisions%2==1, execute, "Odd YDivisions")
+execute=attention(XDivisions%2==1, execute, "Odd XDivisions")
+execute=attention(XDivisions==width, execute, "Width / Xdivisions = 1")
+execute=attention(bottomProcs and height>18, execute, "Bottom and height>18")
+execute=attention(PxPb*width*height>16000000, execute, "Memory cap exceeded (16Mib Uncompressed)")
+if not execute: frames=0
+
+#Images
+images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, frames)]
+frame=[None for i in range(0, frames)]
 
 #Filename
 filenameTags=""
@@ -138,10 +140,10 @@ if bottomProcs and palette:
 	bottom=" --bottom"
 	filenameTags+="--bottom"
 else: bottom="";
-print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}{bottom}")
+schem.set_tag('name', filename)
+print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames},{channels}{palette}{bottom}")
 print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
-
 
 ### --- Main ---
 
@@ -149,12 +151,12 @@ t1=default_timer()
 print("Loading...")
 
 #Load frames
-for i in range(len(images)):
+for i in range(frames):
 	with Image.open(images[i]) as frame[i]:
 		frame[i].load()
 		frame[i]=frame[i].resize((width,height))
 t2=default_timer()
-print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1, 2)}s\n")
+print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s\n")
 
 #Loop
 for X in range(XDivisions):
@@ -166,7 +168,7 @@ for X in range(XDivisions):
 
 	#Render X -> Y -> i -> y -> x -> pixel
 	for Y in range(YDivisions):
-		for i in range(len(images)):
+		for i in range(frames):
 			for y in range(blockHeight):
 				for x in range(blockWidth):
 					pixel=tuple(frame[i].getpixel((x+X*blockWidth,y+Y*blockHeight))) #returns (r, g, b, a) with rgba<256.
@@ -202,7 +204,7 @@ for X in range(XDivisions):
 			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 			#MLog
-			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read ascii VAR n; getlink link li; op add li li 1; op add n n 1; op sub itemID ascii 60; lookup item pixel itemID; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
+			codeConf=ProcessorConfig(f'''print "LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read ascii VAR n; getlink link li; op add li li 1; op add n n 1; op sub itemID ascii 60; lookup item pixel itemID; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
 
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
@@ -213,6 +215,11 @@ for X in range(XDivisions):
 		else: splitChannels: codeConf=""
 
 		allPixelBlock=""
+
+for i in range(YDivisions):
+	schem.add_block(Block(Content.ROUTER, width, i+2, None, 0))
+	schem.add_block(Block(Content.ROUTER, width, -i+1-height, None, 0))
+
 if execute:
 	#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
 	with open(filename+".msch", "wb") as m:
