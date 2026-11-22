@@ -10,18 +10,18 @@ Use your cli to execute the script
  `❯ python /png2mlog.py`   
 
 options:   
-  | `command` | Description |    
-  | ----------------------------------------------- | ----------------------------------------------- |    
-  | `-h, --help` | show this help message and exit |    
-  | `--xy [X Y]` | Width, Height. int int |    
-  | `--XY [X Y]` | Length-wise divisions, Cross-wise divisions. int int |    
-  | `-f, --frames [FRAMES]` | Amount of frames. int |    
-  | `-j, --jump [JUMPEDFRAMES]` | Frame jump size. int |    
-  | `-o, --output, --filename [FILENAME]` |  |    
-  | `-c, --channels [SPLITCHANNELS]` | Split R, G and B color channels in three strings. Boolean |    
-  | `-p, --palette [APPLYPALETTE]` | Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean |    
-  | `-b, --bottom [BOTTOMPROCS]` | Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. Boolean |    
-  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean |    
+  | `command` | Description | Default |   
+  | ----------------------------------------------- | ----------------------------------------------- | ------------ |   
+  | `-h, --help` | show this help message and exit |  |   
+  | `--xy [X Y]` | Width, Height. int int | `64 36` |   
+  | `--XY [X Y]` | Length-wise divisions, Cross-wise divisions. int int | 32 6 |   
+  | `-f, --frames [FRAMES]` | Amount of frames. int | `250` |   
+  | `-j, --jump [JUMPEDFRAMES]` | Frame jump size. int | `1` |   
+  | `-o, --output, --filename [FILENAME]` |  | `!name` |   
+  | `-c, --channels [SPLITCHANNELS]` | Split R, G and B color channels in three strings. True if mentioned. | `False` |   
+  | `-p, --palette [APPLYPALETTE]` | Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. True if mentioned. | `True` |   
+  | `-b, --bottom [BOTTOMPROCS]` | Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. False if mentioned. | `False` |   
+  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean |  |   
  
 ## Dependencies:
 Python 3.14 - https://www.python.org/downloads/release/python-31410/    

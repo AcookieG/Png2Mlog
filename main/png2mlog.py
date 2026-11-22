@@ -23,11 +23,11 @@ parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", d
 parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
 
 parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
-parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. Boolean", dest="splitChannels", default=False, type=bool)
-parser.add_argument("-p", "--palette", nargs="?", help="Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean", dest="applyPalette", default=True, type=bool)
-parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. Boolean", dest="bottomProcs", default=False, type=bool)
-parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. Boolean", dest="save", default=False, type=bool)
-parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, , --Palette. Boolean", type=bool)
+parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. bool", dest="splitChannels", default=False, type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. bool", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. bool", dest="bottomProcs", default=False, type=bool)
+parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. bool", dest="save", default=False, type=bool)
+parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, , --Palette. bool", type=bool)
 
 parameters=parser.parse_args()
 [width, height] = parameters.xy
@@ -35,7 +35,13 @@ parameters=parser.parse_args()
 width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
 frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
 filename, save = parameters.filename, parameters.save
-splitChannels, applyPalette, bottomProcs = bool(parameters.splitChannels), bool(parameters.applyPalette), bool(parameters.bottomProcs)
+
+if parameters.splitChannels != False: splitChannels = True
+else: splitChannels = False
+if parameters.applyPalette != True: applyPalette = False
+else: applyPalette = True
+if parameters.bottomProcs != False: bottomProcs = True
+else: bottomProcs = False
 
 
 #Config (Deprecated)
@@ -100,7 +106,7 @@ pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","77
 execute=True
 execute=warn(YDivisions%2==1, execute)
 execute=warn(XDivisions==width, execute)
-execute=warn(bottom and height>18, execute)
+execute=warn(bottomProcs and height>18, execute)
 if not execute: frames=0
 
 #Frames
@@ -128,17 +134,17 @@ if splitChannels and not applyPalette:
 	filenameTags+="--channels"
 else: channels="";
 if bottomProcs and palette:
-	channels=" --bottom"
+	bottom=" --bottom"
 	filenameTags+="--bottom"
-else: channels="";
+else: bottom="";
+print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}{bottom}")
+print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
 
 
 ### --- Main ---
 
 t1=default_timer()
-print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}{bottom}")
-print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 print("Loading...")
 
 #Load frames
