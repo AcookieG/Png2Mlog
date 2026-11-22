@@ -1,4 +1,4 @@
-#(By AcookieG, 2026)
+#(By AcookieG / AKayoCookie, 2026)
 # Frames should be named frame1, frame2 ...
 # please have widths and heights be divisible by your X,Y divisons :3
 # Please have divisions be a multiple of 2
@@ -173,25 +173,7 @@ for X in range(XDivisions):
 
 		#MLog Palette + Schematic
 		if applyPalette:
-			codeConf=ProcessorConfig(f'''set LINE {Y+1}
-set COLUMN {X+1}
-set n 0
-set li 0
-set VAR "{allPixelBlock}"
-sensor blockSize VAR @size
-set array @links
-read pixel VAR n
-getlink link li
-op add li li 1
-op add n n 1
-op sub pixel pixel 60
-lookup item pixel pixel
-control config link pixel 0 0 0
-jump 5 lessThan li array
-jump 18 equal STOP 1
-set li 0
-jump 5 lessThan n blockSize
-write "STOP" processor1 STOP''', [])
+			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; set array @links; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 5 lessThan li array; jump 18 equal STOP 1; set li 0; jump 5 lessThan n blockSize; write "STOP" processor1 STOP''', [])
 			if Y<YDivisions//2: procX, procY = X*2, YDivisions-Y*2
 			else: procX, procY = X*2, -height-Y*2+YDivisions
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
