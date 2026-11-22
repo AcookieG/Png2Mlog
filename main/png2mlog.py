@@ -87,12 +87,16 @@ def attention(issue, execute, text):
 	if issue and execute:
 		if str(input(f'''\033[38;2;255;144;12mWARNING!\033[0m
  | An issue with your parameters has been found: {text}
- | This will lead to a broken display.
+ | This may lead to a broken display.
  | Continue? (Y/n)''')).upper()=="Y": 0
 		else: execute=False; print(" | Parameters are being discarded.")
 	return execute
 
-
+def loadFrames(frames, frame):
+	for i in range(frames):
+		with Image.open(images[i]) as frame[i]:
+			frame[i]=frame[i].resize((width,height))
+	return frame
 
 
 ### --- Variables ---
@@ -119,6 +123,10 @@ execute=True
 execute=attention(height%2==1, execute, "Odd height")
 execute=attention(YDivisions%2==1, execute, "Odd YDivisions")
 execute=attention(XDivisions%2==1, execute, "Odd XDivisions")
+
+execute=attention(width/XDivisions%1 != 0, execute, f"Block width of {width/XDivisions} tiles")
+execute=attention(height/YDivisions%1 != 0, execute, f"Block width of {height/YDivisions} tiles")
+
 execute=attention(XDivisions==width, execute, "Width / Xdivisions = 1")
 execute=attention(bottomProcs and height>18, execute, "Bottom and height>18")
 execute=attention(PxPb>16000, execute, "Memory cap exceeded (16Kib Uncompressed)")
@@ -151,12 +159,7 @@ filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
 
 t1=default_timer()
 print("Loading...")
-
-#Load frames
-for i in range(frames):
-	with Image.open(images[i]) as frame[i]:
-		frame[i].load()
-		frame[i]=frame[i].resize((width,height))
+frame=loadFrames(frames, frame)
 t2=default_timer()
 print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s\n")
 
@@ -213,12 +216,12 @@ for X in range(XDivisions):
 
 		allPixelBlock=""
 
-for i in range(YDivisions):
-	schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
-	schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0))
+if applyPalette:
+	for i in range(YDivisions):
+		schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
+		schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0))
 
 if execute:
-	#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
 	with open(filename+".msch", "wb") as m:
 		m.write(schem._write())
 	schem.__init__()
