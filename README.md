@@ -19,7 +19,8 @@ options:
   | `-j, --jump [JUMPEDFRAMES]` | Frame jump size. int |    
   | `-o, --output, --filename [FILENAME]` |  |    
   | `-c, --channels [SPLITCHANNELS]` | Split R, G and B color channels in three strings. Boolean |    
-  | `-p, --palette [APPLYPALETTE]` | apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean |    
+  | `-p, --palette [APPLYPALETTE]` | Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean |    
+  | `-b, --bottom [BOTTOMPROCS]` | Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. Boolean |    
   | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean |    
  
 ## Dependencies:
