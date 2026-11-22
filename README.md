@@ -21,7 +21,7 @@ options:
   | `-c, --channels [SPLITCHANNELS]` | Split R, G and B color channels in three strings. True if mentioned. | `False` |   
   | `-p, --palette [APPLYPALETTE]` | Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. True if mentioned. | `True` |   
   | `-b, --bottom [BOTTOMPROCS]` | Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. False if mentioned. | `False` |   
-  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. Boolean |  |   
+  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. bool |  |   
  
 ## Dependencies:
 Python 3.14 - https://www.python.org/downloads/release/python-31410/    
