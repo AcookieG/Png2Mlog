@@ -84,7 +84,7 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
-def warn(issue, execute, text):
+def attention(issue, execute, text):
 	if issue and execute:
 		if str(input(f'''\033[38;2;255;144;12mWARNING!\033[0m
  | An issue with your parameters has been found: {text}
@@ -104,10 +104,10 @@ pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","77
 
 #Warnings
 execute=True
-execute=warn(YDivisions%2==1, execute, "YDivisions%2==1")
-execute=warn(XDivisions%2==1, execute, "YDivisions%2==1")
-execute=warn(XDivisions==width, execute, "YDivisions%2==1")
-execute=warn(bottomProcs and height>18, execute, "bottomProcs and height>18")
+execute=attention(YDivisions%2==1, execute, "YDivisions%2==1")
+execute=attention(XDivisions%2==1, execute, "YDivisions%2==1")
+execute=attention(XDivisions==width, execute, "YDivisions%2==1")
+execute=attention(bottomProcs and height>18, execute, "bottomProcs and height>18")
 if not execute: frames=0
 
 #Frames
