@@ -124,6 +124,13 @@ def snakeBar(percent, length): #Slow but cute
 		else: bar+=" "
 	return f"[{bar}]"
 
+def slideBar(percent, length, slide):
+	bar=""
+	progress=round(percent*length)
+	for i in range(progress): bar+=slide
+	for i in range(length-progress): bar+=" "
+	return f"[{bar}]"
+
 
 ### --- Variables ---
 
@@ -146,16 +153,18 @@ n=0
 
 #Warnings
 execute=True
-execute=attention(height%2==1, execute, "Odd height")
-execute=attention(YDivisions%2==1, execute, "Odd YDivisions")
-execute=attention(XDivisions%2==1, execute, "Odd XDivisions")
+execute=(
+attention(height%2==1, execute, "Odd height")
+and attention(YDivisions%2==1, execute, "Odd YDivisions")
+and attention(XDivisions%2==1, execute, "Odd XDivisions")
 
-execute=attention(width/XDivisions%1 != 0, execute, f"Block width of {width/XDivisions} tiles")
-execute=attention(height/YDivisions%1 != 0, execute, f"Block width of {height/YDivisions} tiles")
+and attention(width/XDivisions%1 != 0, execute, f"Block width of {width/XDivisions} tiles")
+and attention(height/YDivisions%1 != 0, execute, f"Block width of {height/YDivisions} tiles")
 
-execute=attention(XDivisions==width, execute, "Width / Xdivisions = 1")
-execute=attention(bottomProcs and height>18, execute, "Bottom and height>18")
-execute=attention(PxPb>16000, execute, "Memory cap exceeded (16Kib Uncompressed)")
+and attention(XDivisions==width, execute, "Width / Xdivisions = 1")
+and attention(bottomProcs and height>18, execute, "Bottom and height>18")
+and attention(PxPb>16000, execute, "Memory cap exceeded (16Kib Uncompressed)")
+)
 if not execute: frames=0
 
 #Images
@@ -215,7 +224,7 @@ for X in range(XDivisions):
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 		n+=PxPb
 		t2=default_timer()
-		print(f" {snakeBar(n/totalPixels, 25)} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+		print(f" {slideBar(n/totalPixels, 25, "/")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
 
 		#Add and reset at block
 		allPixel+=allPixelBlock+"\n\n"
