@@ -45,20 +45,19 @@ else: palette=""
 print(f" | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 
 #Config (Deprecated)
-"""
- if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
-	#preset
-	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
-else:
-	#custom
-	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
-	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
-	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
-	frames, jumpedFrames=int(frames), int(jumpedFrames)
-	filename=str(input(" | filename: "))
-	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
-	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-"""
+# if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
+#	#preset
+#	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
+#else:
+#	#custom
+#	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
+#	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
+#	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
+#	frames, jumpedFrames=int(frames), int(jumpedFrames)
+#	filename=str(input(" | filename: "))
+#	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
+#	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
+
 print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 
 
@@ -86,6 +85,15 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
+def warn(issue, execute):
+	if issue and execute:
+		if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
+ | There are display issues linked to your parameters.
+ | This will lead to a broken display.
+ | Continue? (Y/n)''')).upper()=="Y": 0
+		else: execute=False; print(" | Parameters are being discarded.")
+	return execute
+
 #Color
 colorRange=(126-32)/256; colorOffset=32
 allPixelsPercent=[]
@@ -94,18 +102,9 @@ pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","77
 
 #Warnings
 execute=True
-if YDivisions%2==1:
-	if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
- | YDivisions%2 != 0
- | This will lead to a broken display.
- | Continue? (Y/n)''')).upper()=="Y": 1
-	else: frames=0; execute=False; print(" | Parameters are being discarded.")
-if XDivisions==width and execute:
-	if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
- | XDivisions == Width
- | This will lead to a broken display.
- | Continue? (Y/n)''')).upper()=="Y": 1
-	else: frames=0; execute=False; print(" | Parameters are being discarded.")
+execute=warn(YDivisions%2==1, execute)
+execute=warn(XDivisions==width, execute)
+if not execute: frames=0
 
 #Frames
 if jumpedFrames<=1: jumpedFrames=1
