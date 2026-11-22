@@ -9,7 +9,7 @@ Convert your video to individual frames (I use ffmpeg)
 Use your cli to execute the script   
  `❯ python /png2mlog.py`   
 
-options:   
+### options:   
   | `command` | Description | Default |   
   | ----------------------------------------------- | ----------------------------------------------- | ------------ |   
   | `-h, --help` | show this help message and exit |  |   
