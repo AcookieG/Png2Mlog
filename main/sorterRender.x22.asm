@@ -1,8 +1,9 @@
+print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"
 set n 0
 set li 0
-set VAR "INSERTTEXTHERE"
+set VAR "{INSERTTEXTHERE}"
 sensor blockSize VAR @size
-op sub array @links 1
+set array @links
 read pixel VAR n
 getlink link li
 op add li li 1
@@ -11,8 +12,7 @@ op sub pixel pixel 60
 lookup item pixel pixel
 control config link pixel 0 0 0
 jump 5 lessThan li array
-jump 36 equal STOP 1
-write "STOP" processor1 STOP
+jump 18 equal STOP 1
 set li 0
 jump 5 lessThan n blockSize
-end
+write "STOP" processor1 STOP
