@@ -36,8 +36,8 @@ returns
 | selected parameters: !name: 32x18, 16x2, @250, --palette --bottom
 Colors saved under !name-4500pxpb-32blocks--palette--bottom.txt
 ```
-Accompanied by the text file !name-4500pxpb-32blocks--palette--bottom.txt   
-and the schematic !name-4500pxpb-32blocks--palette--bottom.msch   
+Accompanied by the text file `!name-4500pxpb-32blocks--palette--bottom.txt`   
+and the schematic `!name-4500pxpb-32blocks--palette--bottom.msch`   
 ## Dependencies:
 Python 3.14 - https://www.python.org/downloads/release/python-31410/    
 PIL - https://python-pillow.org/   
