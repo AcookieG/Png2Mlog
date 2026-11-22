@@ -11,7 +11,7 @@ from pymsch import Block, Content, Schematic, ProcessorConfig, ProcessorLink
 #schem init
 
 schem = Schematic()
-schem.set_tag('description', 'By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[]')
+schem.set_tag('description', '')
 parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
 
 #Parse init
@@ -140,7 +140,7 @@ if bottomProcs and palette:
 	bottom=" --bottom"
 	filenameTags+="--bottom"
 else: bottom="";
-schem.set_tag('name', filename)
+schem.set_tag('name', f"{filename} By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[]")
 print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames},{channels}{palette}{bottom}")
 print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
