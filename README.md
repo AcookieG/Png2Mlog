@@ -14,7 +14,7 @@ options:
   | ----------------------------------------------- | ----------------------------------------------- | ------------ |   
   | `-h, --help` | show this help message and exit |  |   
   | `--xy [X Y]` | Width, Height. int int | `64 36` |   
-  | `--XY [X Y]` | Length-wise divisions, Cross-wise divisions. int int | 32 6 |   
+  | `--XY [X Y]` | Length-wise divisions, Cross-wise divisions. int int | `32 6` |   
   | `-f, --frames [FRAMES]` | Amount of frames. int | `250` |   
   | `-j, --jump [JUMPEDFRAMES]` | Frame jump size. int | `1` |   
   | `-o, --output, --filename [FILENAME]` |  | `!name` |   
