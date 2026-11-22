@@ -93,6 +93,8 @@ def attention(issue, execute, text):
 	return execute
 
 
+
+
 ### --- Variables ---
 
 #Color
@@ -164,7 +166,7 @@ for X in range(XDivisions):
 	if applyPalette:
 		for y in range(height):
 			for x in range(blockWidth):
-				schem.add_block(Block(Content.SORTER, x+2*X, -y+1, None, 0))
+				schem.add_block(Block(Content.SORTER, x+2*X, -y, None, 0))
 
 	#Render X -> Y -> i -> y -> x -> pixel
 	for Y in range(YDivisions):
@@ -191,20 +193,15 @@ for X in range(XDivisions):
 
 			#ProcLinks, Proc position
 			procLinks=[]
-			if Y<YDivisions//2:
-				procX, procY = X*blockWidth, YDivisions-Y*2
-				for y in range(blockHeight):
-					for x in range(blockWidth):
-						procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY+1, f"sorter{x+y*blockWidth+1}"))
-			else:
-				procX, procY = X*blockWidth, -height-Y*2+YDivisions
-				for y in range(blockHeight):
-					for x in range(blockWidth):
-						procLinks.append(ProcessorLink(x,-y-Y*blockHeight+1+height+2*Y-YDivisions, f"sorter{x+y*blockWidth+1}"))
+			if Y<YDivisions//2: procX, procY = X*blockWidth, YDivisions-Y*2-1
+			else: procX, procY = X*blockWidth, -height-Y*2+YDivisions-1
+			for y in range(blockHeight):
+				for x in range(blockWidth):
+					procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY, f"sorter{x+y*blockWidth+1}"))
 			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 			#MLog
-			codeConf=ProcessorConfig(f'''print "LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
+			codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
 
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
@@ -217,8 +214,8 @@ for X in range(XDivisions):
 		allPixelBlock=""
 
 for i in range(YDivisions):
-	schem.add_block(Block(Content.ROUTER, width, i+2, None, 0))
-	schem.add_block(Block(Content.ROUTER, width, -i+1-height, None, 0))
+	schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
+	schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0))
 
 if execute:
 	#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
