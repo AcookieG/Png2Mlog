@@ -59,7 +59,7 @@ else:
 	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
 """
-print(" | Results will be saved in the same directory as frames. (Usually ~/home or the png2mlog.py directory)\n")
+print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
 
 
 #Def
@@ -86,28 +86,48 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
-#Init
+#Color
 colorRange=(126-32)/256; colorOffset=32
 allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
 pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a","5e988d","df824d"]
 
+#Warnings
+execute=True
+if YDivisions%2==1:
+	if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
+ | YDivisions%2 != 0
+ | This will lead to a broken display.
+ | Continue? (Y/n)''')).upper()=="Y": 1
+	else: frames=0; execute=False; print(" | Parameters are being discarded.")
+if XDivisions==width and execute:
+	if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
+ | XDivisions == Width
+ | This will lead to a broken display.
+ | Continue? (Y/n)''')).upper()=="Y": 1
+	else: frames=0; execute=False; print(" | Parameters are being discarded.")
+
+#Frames
 if jumpedFrames<=1: jumpedFrames=1
 images=["frame"+str(i*jumpedFrames+1)+".png" for i in range(0, frames//jumpedFrames)]
 frame=[None for i in range(0, frames//jumpedFrames)]
 
+#Channels
 if splitChannels: XDivisions,YDivisions =1,1
 blockWidth, blockHeight = int(width/XDivisions), int(height/YDivisions)
 
+#Pixels
 n=0
 totalPixels=width*height*len(images)
 PxPb=blockWidth*blockHeight*len(images)
 
+#Parameters
 if applyPalette: filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks--palette"
 elif splitChannels: filename+=f"-{PxPb}pxpb-x3-{YDivisions*XDivisions}blocks--RGB"
 else: filename+=f"-{PxPb*3}pxpb-{YDivisions*XDivisions}blocks"
 
-#Main
+#__main__
+
 t1=default_timer()
 print("Loading...")
 
@@ -157,7 +177,7 @@ set n 0
 set li 0
 set VAR "{allPixelBlock}"
 sensor blockSize VAR @size
-op sub array @links 1
+set array @links
 read pixel VAR n
 getlink link li
 op add li li 1
@@ -166,11 +186,10 @@ op sub pixel pixel 60
 lookup item pixel pixel
 control config link pixel 0 0 0
 jump 5 lessThan li array
-jump 36 equal STOP 1
-write "STOP" processor1 STOP
+jump 18 equal STOP 1
 set li 0
 jump 5 lessThan n blockSize
-end''', [])
+write "STOP" processor1 STOP''', [])
 			if Y<YDivisions//2: procX, procY=X*2, YDivisions-Y*2
 			else: procX, procY=X*2, -height-Y*2+YDivisions
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
@@ -182,20 +201,21 @@ end''', [])
 		else: splitChannels: codeConf=""
 
 		allPixelBlock=""
+if execute:
+	#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
+	with open(filename+".msch", "wb") as m:
+		m.write(schem._write())
+	schem.__init__()
 
-#f"\n\n-----------------------------------------------\n====== BLOCK COLUMN {X+1} ======\n-----------------------------------------------\n\n"
-with open(filename+".msch", "wb") as m:
-	m.write(schem._write())
-schem.__init__()
-
-#Load txt file
-with open(filename+".txt", "w") as f:
-	if splitChannels:
-		f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
-	else:
-		f.write(allPixel)
+	#Load txt file
+	with open(filename+".txt", "w") as f:
+		if splitChannels:
+			f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
+		else:
+			f.write(allPixel)
+	print(f"Colors saved under",f"\033[38;2;144;164;255m{filename}.txt\033[0m")
 
 print(f"All done! - {round(t2-t1, 2)}s OwO       ")
-print("Saved under",filename)
+
 
 
