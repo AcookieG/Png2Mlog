@@ -224,7 +224,7 @@ for X in range(XDivisions):
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 		n+=PxPb
 		t2=default_timer()
-		print(f" {slideBar(n/totalPixels, 20, "<>", "  ")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+		print(f" {slideBar(n/totalPixels, 20, "|", ".")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
 
 		#Add and reset at block
 		allPixel+=allPixelBlock+"\n\n"
