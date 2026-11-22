@@ -9,10 +9,10 @@ import argparse
 from pymsch import Block, Content, Schematic, ProcessorConfig
 
 
-schem=Schematic()
+schem = Schematic()
 schem.set_tag('name', "!name")
 schem.set_tag('description', '')
-parser=argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
+parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
 
 #Parse
 
@@ -21,19 +21,19 @@ parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise div
 parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", dest="frames", default=250, type=int)
 parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
 
-parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="", type=str)
+parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
 parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. Boolean", dest="splitChannels", default=False, type=bool)
 parser.add_argument("-p", "--palette", nargs="?", help="Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. Boolean", dest="applyPalette", default=True, type=bool)
 parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. Boolean", dest="save", default=False, type=bool)
 parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, , --Palette. Boolean", type=bool)
 
 parameters=parser.parse_args()
-[width, height]=parameters.xy
-[XDivisions, YDivisions]=parameters.XY
+[width, height] = parameters.xy
+[XDivisions, YDivisions] = parameters.XY
 width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
-frames=parameters.frames; jumpedFrames=parameters.jumpedFrames;
-filename=parameters.filename; save=parameters.save;
-splitChannels=bool(parameters.splitChannels); applyPalette=bool(parameters.applyPalette);
+frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
+filename, save = parameters.filename, parameters.save
+splitChannels, applyPalette = bool(parameters.splitChannels), bool(parameters.applyPalette)
 
 
 #Config (Deprecated)
@@ -186,8 +186,8 @@ jump 18 equal STOP 1
 set li 0
 jump 5 lessThan n blockSize
 write "STOP" processor1 STOP''', [])
-			if Y<YDivisions//2: procX, procY=X*2, YDivisions-Y*2
-			else: procX, procY=X*2, -height-Y*2+YDivisions
+			if Y<YDivisions//2: procX, procY = X*2, YDivisions-Y*2
+			else: procX, procY = X*2, -height-Y*2+YDivisions
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
 		#Mlog RGB
