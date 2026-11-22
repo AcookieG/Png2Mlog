@@ -1,20 +1,21 @@
 #(By AcookieG, 2026)
 # Frames should be named frame1, frame2 ...
 # please have widths and heights be divisible by your X,Y divisons :3
-# Ideally have divisions be a multiple of 2
+# Please have divisions be a multiple of 2
 
 from PIL import Image
 from timeit import default_timer
 import argparse
 from pymsch import Block, Content, Schematic, ProcessorConfig
 
+#schem init
 
 schem = Schematic()
 schem.set_tag('name', "!name")
 schem.set_tag('description', '')
 parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
 
-#Parse
+#Parse init
 
 parser.add_argument("--xy", nargs=2, help="Width, Height. int int", dest="xy", default=(64,36), type=str)
 parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise divisions. int int", dest="XY", default=(32,6), type=str)
@@ -50,7 +51,9 @@ splitChannels, applyPalette = bool(parameters.splitChannels), bool(parameters.ap
 #	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
 #	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
 
-#Def
+
+### --- Def ---
+
 def pixelToASCII(pixel):
 	r=convertToASCII(pixel[0]); g=convertToASCII(pixel[1]); b=convertToASCII(pixel[2]);
 	return r, g, b
@@ -82,6 +85,9 @@ def warn(issue, execute):
  | Continue? (Y/n)''')).upper()=="Y": 0
 		else: execute=False; print(" | Parameters are being discarded.")
 	return execute
+
+
+### --- Variables ---
 
 #Color
 colorRange=(126-32)/256; colorOffset=32
@@ -121,7 +127,9 @@ if splitChannels and not applyPalette:
 else: channels="";
 filename+=f"-{PxPb}pxpb-{YDivisions*XDivisions}blocks{filenameTags}"
 
-#__main__
+
+### --- Main ---
+
 t1=default_timer()
 print(f" |\n | selected parameters: {filename}: {width}x{height}, {XDivisions}x{YDivisions}, @{frames//jumpedFrames},{channels}{palette}")
 print(" | Results will be saved in the same directory as frames. (Usually \033[38;2;144;164;255m~/home\033[0m or the \033[38;2;144;164;255mpng2mlog.py\033[0m directory)\n")
@@ -132,12 +140,10 @@ for i in range(len(images)):
 	with Image.open(images[i]) as frame[i]:
 		frame[i].load()
 		frame[i]=frame[i].resize((width,height))
-
 t2=default_timer()
 print(f"Loaded {len(images)}/{len(images)}, {round(t2-t1, 2)}s\n")
 
-#Load msch file
-
+#Loop
 for X in range(XDivisions):
 	#Add sorters
 	if applyPalette:
