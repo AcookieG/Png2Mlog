@@ -98,6 +98,32 @@ def loadFrames(frames, frame):
 			frame[i]=frame[i].resize((width,height))
 	return frame
 
+def procGeneratePaletteMode(X,Y, text):
+	#ProcLinks, Proc position
+	procLinks=[]
+	if Y<YDivisions//2: procX, procY = X*blockWidth, YDivisions-Y*2-1
+	else: procX, procY = X*blockWidth, -height-Y*2+YDivisions-1
+	for y in range(blockHeight):
+		for x in range(blockWidth):
+			procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY, f"sorter{x+y*blockWidth+1}"))
+	procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
+
+	#MLog
+	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
+
+	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+
+def snakeBar(percent, length): #Slow but cute
+	bar=""
+	progress=round(percent*length)
+	for i in range(progress): bar+="~"
+	if progress%4==0: bar+="C"
+	else: bar+="c"
+	for i in range(length-progress):
+		if (i+progress)%4==0: bar+="¤"
+		else: bar+=" "
+	return f"[{bar}]"
+
 
 ### --- Variables ---
 
@@ -163,15 +189,18 @@ frame=loadFrames(frames, frame)
 t2=default_timer()
 print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s\n")
 
-#Loop
-for X in range(XDivisions):
-	#Add sorters
-	if applyPalette:
+#applyPalette extras
+if applyPalette:
+	for x in range(width):
 		for y in range(height):
-			for x in range(blockWidth):
-				schem.add_block(Block(Content.SORTER, x+2*X, -y, None, 0))
+			schem.add_block(Block(Content.SORTER, x, -y, None, 0)) #sorters
+	for i in range(YDivisions):
+		schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
+		schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0)) #routers
 
-	#Render X -> Y -> i -> y -> x -> pixel
+#Loop
+#Render X -> Y -> i -> y -> x -> pixel
+for X in range(XDivisions):
 	for Y in range(YDivisions):
 		for i in range(frames):
 			for y in range(blockHeight):
@@ -186,27 +215,13 @@ for X in range(XDivisions):
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 		n+=PxPb
 		t2=default_timer()
-		print(f"{n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+		print(f" {snakeBar(n/totalPixels, 25)} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
 
 		#Add and reset at block
 		allPixel+=allPixelBlock+"\n\n"
 
 		#MLog Palette + Schematic
-		if applyPalette:
-
-			#ProcLinks, Proc position
-			procLinks=[]
-			if Y<YDivisions//2: procX, procY = X*blockWidth, YDivisions-Y*2-1
-			else: procX, procY = X*blockWidth, -height-Y*2+YDivisions-1
-			for y in range(blockHeight):
-				for x in range(blockWidth):
-					procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY, f"sorter{x+y*blockWidth+1}"))
-			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
-
-			#MLog
-			codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
-
-			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+		if applyPalette: procGeneratePaletteMode(X,Y, allPixelBlock)
 
 		#Mlog RGB
 		elif splitChannels: codeConf=""
@@ -216,12 +231,9 @@ for X in range(XDivisions):
 
 		allPixelBlock=""
 
-if applyPalette:
-	for i in range(YDivisions):
-		schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
-		schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0))
-
 if execute:
+
+	#Load msch file
 	with open(filename+".msch", "wb") as m:
 		m.write(schem._write())
 	schem.__init__()
@@ -234,7 +246,7 @@ if execute:
 			f.write(allPixel)
 	print(f"Colors saved under",f"\033[38;2;144;164;255m{filename}.txt\033[0m")
 
-print(f"All done! - {round(t2-t1, 2)}s OwO       ")
+print(f"All done! - {round(t2-t1, 2)}s OwO         ")
 
 
 
