@@ -124,11 +124,11 @@ def snakeBar(percent, length): #Slow but cute
 		else: bar+=" "
 	return f"[{bar}]"
 
-def slideBar(percent, length, slide):
+def slideBar(percent, length, text, text2):
 	bar=""
 	progress=round(percent*length)
-	for i in range(progress): bar+=slide
-	for i in range(length-progress): bar+=" "
+	for i in range(progress): bar+=text
+	for i in range(length-progress): bar+=text2
 	return f"[{bar}]"
 
 
@@ -224,7 +224,7 @@ for X in range(XDivisions):
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 		n+=PxPb
 		t2=default_timer()
-		print(f" {slideBar(n/totalPixels, 25, "/")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+		print(f" {slideBar(n/totalPixels, 20, "<>", "  ")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
 
 		#Add and reset at block
 		allPixel+=allPixelBlock+"\n\n"
