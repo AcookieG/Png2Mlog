@@ -100,7 +100,7 @@ def warn(issue, execute, text):
 colorRange=(126-32)/256; colorOffset=32
 allPixelsPercent=[]
 allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
-pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a","5e988d","df824d"]
+pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a"] #,"5e988d","df824d"
 
 #Warnings
 execute=True
@@ -202,7 +202,7 @@ for X in range(XDivisions):
 			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 			#MLog
-			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
+			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read ascii VAR n; getlink link li; op add li li 1; op add n n 1; op sub itemID ascii 60; lookup item pixel itemID; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
 
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
