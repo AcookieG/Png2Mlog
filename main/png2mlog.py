@@ -119,7 +119,7 @@ execute=attention(YDivisions%2==1, execute, "Odd YDivisions")
 execute=attention(XDivisions%2==1, execute, "Odd XDivisions")
 execute=attention(XDivisions==width, execute, "Width / Xdivisions = 1")
 execute=attention(bottomProcs and height>18, execute, "Bottom and height>18")
-execute=attention(PxPb*width*height>16000000, execute, "Memory cap exceeded (16Mib Uncompressed)")
+execute=attention(PxPb>16000, execute, "Memory cap exceeded (16Kib Uncompressed)")
 if not execute: frames=0
 
 #Images
@@ -204,7 +204,7 @@ for X in range(XDivisions):
 			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 			#MLog
-			codeConf=ProcessorConfig(f'''print "LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read ascii VAR n; getlink link li; op add li li 1; op add n n 1; op sub itemID ascii 60; lookup item pixel itemID; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
+			codeConf=ProcessorConfig(f'''print "LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; end''', procLinks)
 
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
