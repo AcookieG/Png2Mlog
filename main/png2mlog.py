@@ -6,7 +6,7 @@
 from PIL import Image
 from timeit import default_timer
 import argparse
-from pymsch import Block, Content, Schematic, ProcessorConfig
+from pymsch import Block, Content, Schematic, ProcessorConfig, ProcessorLink
 
 #schem init
 
@@ -84,10 +84,10 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
-def warn(issue, execute):
+def warn(issue, execute, text):
 	if issue and execute:
-		if str(input('''\033[38;2;255;144;12mWARNING!\033[0m
- | There are display issues linked to your parameters.
+		if str(input(f'''\033[38;2;255;144;12mWARNING!\033[0m
+ | An issue with your parameters has been found: {text}
  | This will lead to a broken display.
  | Continue? (Y/n)''')).upper()=="Y": 0
 		else: execute=False; print(" | Parameters are being discarded.")
@@ -104,9 +104,10 @@ pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","77
 
 #Warnings
 execute=True
-execute=warn(YDivisions%2==1, execute)
-execute=warn(XDivisions==width, execute)
-execute=warn(bottomProcs and height>18, execute)
+execute=warn(YDivisions%2==1, execute, "YDivisions%2==1")
+execute=warn(XDivisions%2==1, execute, "YDivisions%2==1")
+execute=warn(XDivisions==width, execute, "YDivisions%2==1")
+execute=warn(bottomProcs and height>18, execute, "bottomProcs and height>18")
 if not execute: frames=0
 
 #Frames
@@ -185,9 +186,24 @@ for X in range(XDivisions):
 
 		#MLog Palette + Schematic
 		if applyPalette:
-			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; set array @links; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 5 lessThan li array; jump 18 equal STOP 1; set li 0; jump 5 lessThan n blockSize; write "STOP" processor1 STOP''', [])
-			if Y<YDivisions//2: procX, procY = X*2, YDivisions-Y*2
-			else: procX, procY = X*2, -height-Y*2+YDivisions
+
+			#ProcLinks, Proc position
+			procLinks=[]
+			if Y<YDivisions//2:
+				procX, procY = X*blockWidth, YDivisions-Y*2
+				for y in range(blockHeight):
+					for x in range(blockWidth):
+						procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY+1, f"sorter{x+y*blockWidth+1}"))
+			else:
+				procX, procY = X*blockWidth, -height-Y*2+YDivisions
+				for y in range(blockHeight):
+					for x in range(blockWidth):
+						procLinks.append(ProcessorLink(x,-y-Y*blockHeight+1+height+2*Y-YDivisions, f"sorter{x+y*blockWidth+1}"))
+			procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
+
+			#MLog
+			codeConf=ProcessorConfig(f'''print "By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[] LINE {Y+1} COLUMN {X+1}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; jump 17 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write "STOP" processor1 STOP''', procLinks)
+
 			schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
 		#Mlog RGB
