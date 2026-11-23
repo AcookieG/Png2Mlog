@@ -22,10 +22,10 @@ Use your cli to execute the script
   | `-f, --frames [FRAMES]` | Amount of frames. `int` | `250` |   
   | `-j, --jump [JUMPEDFRAMES]` | Frame jump size. `int` | `1` |   
   | `-o, --output, --filename [FILENAME]` | `str` | `!name` |   
-  | `-c, --channels [SPLITCHANNELS]` | Split R, G and B color channels in three strings. A bit faster than standard. `False` if mentioned. | `True` |   
-  | `-p, --palette [APPLYPALETTE]` | Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. `False` if mentioned. | `True` |   
-  | `-b, --bottom [BOTTOMPROCS]` | (WIP )Have all the processors only at the bottom of the image. Ignore if height is above 18. Only works if --palette is True. `False` if mentioned. | `False` |   
-  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1, filename, --Palette. `bool` |  |   
+  | `-c, --channels [SPLITCHANNELS]` | Do not plit R, G and B color channels in three strings. `False` if mentioned. | `True` |   
+  | `-p, --palette [APPLYPALETTE]` | Do not apply Mindustry's 22 sorter colors. `False` if mentioned. | `True` |   
+  | `-b, --bottom [BOTTOMPROCS]` | (WIP) Have all the processors only at the bottom of the image. Ignore if height is above 18. Only works if --palette is True. `False` if mentioned. | `False` |   
+  | `-d, --default [DEFAULT]` | (Deprecated) Use preset: 64x36, 32x6, 250, @1. `bool` |  |   
 
 ### Example:
 ```bash

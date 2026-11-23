@@ -22,11 +22,11 @@ parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", d
 parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
 
 parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
-parser.add_argument("-c", "--channels", nargs="?", help="Don't split R, G and B color channels in three strings. A bit faster than standard. bool", dest="splitChannels", default=True, type=bool)
-parser.add_argument("-p", "--palette", nargs="?", help="Don't apply Mindustry's 22 sorter colors. File will be saved in the x22 format. bool", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-c", "--channels", nargs="?", help="Do not split R, G and B color channels in three strings. bool", dest="splitChannels", default=True, type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="Do not apply Mindustry's 22 sorter colors. bool", dest="applyPalette", default=True, type=bool)
 parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. bool", dest="bottomProcs", default=False, type=bool)
 parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. bool", dest="save", default=False, type=bool)
-parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1, , --Palette. bool", type=bool)
+parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1.  bool", type=bool)
 
 parameters=parser.parse_args()
 [width, height] = parameters.xy
