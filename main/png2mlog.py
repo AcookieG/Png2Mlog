@@ -117,11 +117,12 @@ def procPlacePaletteMode(X,Y, text):
 def procPlaceCanvasMode(X,Y, text):
 	#ProcLinks, Proc position
 	procLinks=[]
-	procX, procY = X*2+3, Y*2
+	procX, procY = X*2-XDivisions, Y*2-YDivisions
+	if X>=XDivisions//2: procX+=3
 	procLinks.append(ProcessorLink(-procX,-procY, "display1"))
 
 	#MLog
-	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set VAR "{text}"; sensor blockSize VAR @size; set xmin {X*blockWidth}; set ymin {Y*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R VAR n; op add n n 1; read G VAR n; op add n n 1; read B VAR n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 10 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; jump 10 greaterThanEq y ymin''', procLinks)
+	codeConf=ProcessorConfig(f'''print "LINE {YDivisions-Y} COLUMN {X}"; set n 0; set VAR "{text}"; sensor blockSize VAR @size; set xmin {X*blockWidth}; set ymin {(YDivisions-Y)*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R VAR n; op add n n 1; read G VAR n; op add n n 1; read B VAR n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 10 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; select y equal y ymin ymax y; jump 10 lessThan n blockSize''', procLinks)
 
 	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
@@ -222,6 +223,13 @@ if applyPalette:
 #Canvas extras
 else:
 	schem.add_block(Block(Content.LOGIC_DISPLAY, 1, 1, None, 0))
+	schem.add_block(Block(Content.ROUTER, 0, -1, None, 0))
+	schem.add_block(Block(Content.ROUTER, 1, -1, None, 0))
+	schem.add_block(Block(Content.ROUTER, 2, -1, None, 0))
+	schem.add_block(Block(Content.OVERDRIVE_DOME, 1, -3, None, 0))
+	schem.add_block(Block(Content.POWER_SOURCE, 0, -5, None, 0))
+	schem.add_block(Block(Content.ITEM_SOURCE, 1, -5, Content.SILICON, 0))
+	schem.add_block(Block(Content.ITEM_SOURCE, 2, -5, Content.PHASE_FABRIC, 0))
 
 #Loop
 #Render X -> Y -> i -> y -> x -> pixel
@@ -246,7 +254,7 @@ for X in range(XDivisions):
 		allPixel+=allPixelBlock+"\n\n"
 
 		#MLog Palette + Schematic
-		if applyPalette: procPlacePaletteMode(X,Y, allPixelBlock)
+		if applyPalette: procPlacePaletteMode(X, Y, allPixelBlock)
 
 		#Mlog
 		elif not splitChannels: procPlaceCanvasMode(X, Y, allPixelBlock)
