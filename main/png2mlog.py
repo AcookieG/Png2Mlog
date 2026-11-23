@@ -65,9 +65,9 @@ def pixelToASCII(pixel):
 	return r, g, b
 
 def convertToASCII(color):
-	colorUnicode=chr(round(color*colorRange+colorOffset))
-	if colorUnicode==(34 or 39 or 92): colorUnicode+=1
-	return colorUnicode
+	colorUnicode=round(color*colorRange+colorOffset)
+	if colorUnicode==34 or colorUnicode==39 or colorUnicode==92: colorUnicode+=1
+	return chr(colorUnicode)
 
 def matchToPal(pixel,pal):
 	shortest=2**40
@@ -114,17 +114,16 @@ def procPlacePaletteMode(X,Y, text):
 
 	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
-def procPlaceCanvasMode(number, text):
+def procPlaceCanvasMode(X,Y, text):
 	#ProcLinks, Proc position
 	procLinks=[]
-	#procX, procY = X*2+3, Y*2
-	#procLinks.append(ProcessorLink(-procX,-procY, "canvas1"))
-	#procLinks.append(ProcessorLink(1, 0, "processor1"))
+	procX, procY = X*2+3, Y*2
+	procLinks.append(ProcessorLink(-procX,-procY, "display1"))
 
 	#MLog
-	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set VAR "{text}"; sensor blockSize VAR @size; set xmin {X*blockWidth}; set ymin {Y*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R VAR n; op add n n 1; read G VAR n; op add n n 1; read B VAR n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 11 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; jump 11 greaterThanEq y ymax''', procLinks)
+	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set VAR "{text}"; sensor blockSize VAR @size; set xmin {X*blockWidth}; set ymin {Y*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R VAR n; op add n n 1; read G VAR n; op add n n 1; read B VAR n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 10 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; jump 10 greaterThanEq y ymin''', procLinks)
 
-	#schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
 def snakeBar(percent, length): #Slow but cute
 	bar=""
@@ -209,7 +208,7 @@ t1=default_timer()
 print("Loading...")
 frame=loadFrames(frames, frame)
 t2=default_timer()
-print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s               \n")
+print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s                                               \n")
 
 #applyPalette extras
 if applyPalette:
@@ -222,7 +221,7 @@ if applyPalette:
 
 #Canvas extras
 else:
-	schem.add_block(Block(Content.LOGIC_DISPLAY, 0, 0, None, 0))
+	schem.add_block(Block(Content.LOGIC_DISPLAY, 1, 1, None, 0))
 
 #Loop
 #Render X -> Y -> i -> y -> x -> pixel
@@ -249,14 +248,15 @@ for X in range(XDivisions):
 		#MLog Palette + Schematic
 		if applyPalette: procPlacePaletteMode(X,Y, allPixelBlock)
 
-		#Mlog RGB
-		elif not splitChannels: procPlaceCanvasMode(X*YDivisions+Y, allPixelBlock)
+		#Mlog
+		elif not splitChannels: procPlaceCanvasMode(X, Y, allPixelBlock)
 
-		#Mlog Canvas
-		else: splitChannels: codeConf=""
+		#Mlog RGB
+		# else: splitChannels: codeConf=""
 
 		allPixelBlock=""
 
+print(f"All done! - {round(t2-t1, 2)}s OwO                           ")
 if execute:
 
 	#Load msch file
@@ -272,8 +272,6 @@ if execute:
 		else:
 			f.write(allPixel)
 	print(f"Colors saved under",f"\033[38;2;144;164;255m{filename}.txt\033[0m")
-
-print(f"All done! - {round(t2-t1, 2)}s OwO         ")
 
 
 
