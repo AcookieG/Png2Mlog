@@ -110,9 +110,21 @@ def procPlacePaletteMode(X,Y, text):
 	procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 	#MLog
-	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set li 0; set VAR "{allPixelBlock}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
+	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set li 0; set VAR "{text}"; sensor blockSize VAR @size; op sub array @links 1; read pixel VAR n; getlink link li; op add li li 1; op add n n 1; op sub pixel pixel 60; lookup item pixel pixel; control config link pixel 0 0 0; jump 6 lessThan li array; write STOP processor1 "STOP"; jump 18 equal STOP 1; set li 0; jump 6 lessThan n blockSize; write STOP processor1 "STOP"''', procLinks)
 
 	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+
+def procPlaceCanvasMode(number, text):
+	#ProcLinks, Proc position
+	procLinks=[]
+	#procX, procY = X*2+3, Y*2
+	#procLinks.append(ProcessorLink(-procX,-procY, "canvas1"))
+	#procLinks.append(ProcessorLink(1, 0, "processor1"))
+
+	#MLog
+	codeConf=ProcessorConfig(f'''print "LINE {Y} COLUMN {X}"; set n 0; set VAR "{text}"; sensor blockSize VAR @size; set xmin {X*blockWidth}; set ymin {Y*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R VAR n; op add n n 1; read G VAR n; op add n n 1; read B VAR n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 11 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; jump 11 greaterThanEq y ymax''', procLinks)
+
+	#schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
 def snakeBar(percent, length): #Slow but cute
 	bar=""
@@ -208,6 +220,10 @@ if applyPalette:
 		schem.add_block(Block(Content.ROUTER, width, i+1, None, 0))
 		schem.add_block(Block(Content.ROUTER, width, -i-height, None, 0)) #routers
 
+#Canvas extras
+else:
+	schem.add_block(Block(Content.LOGIC_DISPLAY, 0, 0, None, 0))
+
 #Loop
 #Render X -> Y -> i -> y -> x -> pixel
 for X in range(XDivisions):
@@ -234,7 +250,7 @@ for X in range(XDivisions):
 		if applyPalette: procPlacePaletteMode(X,Y, allPixelBlock)
 
 		#Mlog RGB
-		elif splitChannels: codeConf=""
+		elif not splitChannels: procPlaceCanvasMode(X*YDivisions+Y, allPixelBlock)
 
 		#Mlog Canvas
 		else: splitChannels: codeConf=""
@@ -247,6 +263,7 @@ if execute:
 	with open(filename+".msch", "wb") as m:
 		m.write(schem._write())
 	schem.__init__()
+	print(f"Schematic saved under",f"\033[38;2;144;164;255m{filename}.msch\033[0m")
 
 	#Load txt file
 	with open(filename+".txt", "w") as f:
