@@ -96,16 +96,17 @@ def loadFrames(frames, frame):
 	for i in range(frames):
 		with Image.open(images[i]) as frame[i]:
 			frame[i]=frame[i].resize((width,height))
+		print(f" {slideBar(i/frames, 15, "--", "..")} {i} / {frames}", end="\r")
 	return frame
 
-def procGeneratePaletteMode(X,Y, text):
+def procPlacePaletteMode(X,Y, text):
 	#ProcLinks, Proc position
 	procLinks=[]
-	if Y<YDivisions//2: procX, procY = X*blockWidth, YDivisions-Y*2-1
-	else: procX, procY = X*blockWidth, -height-Y*2+YDivisions-1
+	procX, procY = X*blockWidth, YDivisions-Y*2-1
+	if Y>=YDivisions//2: procY += -height
 	for y in range(blockHeight):
 		for x in range(blockWidth):
-			procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY, f"sorter{x+y*blockWidth+1}"))
+			procLinks.append(ProcessorLink(x,-y-Y*blockHeight-procY, f"sorter{x+y*blockWidth}"))
 	procLinks.append(ProcessorLink(blockWidth, 0, "processor1"))
 
 	#MLog
@@ -196,7 +197,7 @@ t1=default_timer()
 print("Loading...")
 frame=loadFrames(frames, frame)
 t2=default_timer()
-print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s\n")
+print(f"Loaded {frames}/{frames}, {round(t2-t1, 2)}s               \n")
 
 #applyPalette extras
 if applyPalette:
@@ -224,13 +225,13 @@ for X in range(XDivisions):
 						allPixelBlock+=str(pixelUnicode[0])+str(pixelUnicode[1])+str(pixelUnicode[2]);
 		n+=PxPb
 		t2=default_timer()
-		print(f" {slideBar(n/totalPixels, 20, "|", ".")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
+		print(f" {slideBar(n/totalPixels, 30, "|", ".")} {n} / {totalPixels} - {round(t2-t1, 2)}s", end="\r")
 
 		#Add and reset at block
 		allPixel+=allPixelBlock+"\n\n"
 
 		#MLog Palette + Schematic
-		if applyPalette: procGeneratePaletteMode(X,Y, allPixelBlock)
+		if applyPalette: procPlacePaletteMode(X,Y, allPixelBlock)
 
 		#Mlog RGB
 		elif splitChannels: codeConf=""
