@@ -256,7 +256,7 @@ for X in range(XDivisions):
 
 		allPixelBlock=""
 
-print(f"All done! - {round(t2-t1, 2)}s OwO                           ")
+print(f"All done! - {round(t2-t1, 2)}s OwO                                               ")
 if execute:
 
 	#Load msch file
