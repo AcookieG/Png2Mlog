@@ -36,13 +36,13 @@ frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
 filename, save = parameters.filename, parameters.save
 
 if parameters.splitChannels != True: splitChannels = False
-else: splitChannels = False
+else: splitChannels = True
 if parameters.applyPalette != True: applyPalette = False
 else: applyPalette = True
 if parameters.bottomProcs != False: bottomProcs = True
 else: bottomProcs = False
 
-if applyPalette and splitChannels: splitChannels=False
+if applyPalette: splitChannels=False
 
 #Config (Deprecated)
 # if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
@@ -202,7 +202,7 @@ if applyPalette:
 	palette=" --palette"
 	filenameTags+="--palette"
 else: palette="";
-if splitChannels and not applyPalette:
+if splitChannels:
 	channels=" --channels"
 	filenameTags+="--channels"
 else: channels="";
