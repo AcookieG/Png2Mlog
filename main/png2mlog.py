@@ -22,7 +22,7 @@ parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", d
 parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
 
 parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
-parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. bool", dest="splitChannels", default=False, type=bool)
+parser.add_argument("-c", "--channels", nargs="?", help="Split R, G and B color channels in three strings. A bit faster than standard. bool", dest="splitChannels", default=True, type=bool)
 parser.add_argument("-p", "--palette", nargs="?", help="Apply Mindustry's 22 sorter colors. File will be saved in the x22 format. bool", dest="applyPalette", default=True, type=bool)
 parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. bool", dest="bottomProcs", default=False, type=bool)
 parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. bool", dest="save", default=False, type=bool)
@@ -35,13 +35,14 @@ width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions)
 frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
 filename, save = parameters.filename, parameters.save
 
-if parameters.splitChannels != False: splitChannels = True
+if parameters.splitChannels != True: splitChannels = False
 else: splitChannels = False
 if parameters.applyPalette != True: applyPalette = False
 else: applyPalette = True
 if parameters.bottomProcs != False: bottomProcs = True
 else: bottomProcs = False
 
+if applyPalette and splitChannels: splitChannels=False
 
 #Config (Deprecated)
 # if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
@@ -126,6 +127,18 @@ def procPlaceCanvasMode(X,Y, text):
 
 	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
 
+def procPlaceRGBMode(X,Y, R, G, B):
+	#ProcLinks, Proc position
+	procLinks=[]
+	procX, procY = X*2-XDivisions, Y*2-YDivisions
+	if X>=XDivisions//2: procX+=3
+	procLinks.append(ProcessorLink(-procX,-procY, "display1"))
+
+	#MLog
+	codeConf=ProcessorConfig(f'''print "LINE {YDivisions-Y} COLUMN {X}"; set n 0; set Rp "{R}"; set Gp "{G}"; set Bp "{B}"; sensor blockSize Rp @size; set xmin {X*blockWidth}; set ymin {(YDivisions-Y)*blockHeight}; op add xmax xmin {blockWidth}; op add ymax ymin {blockHeight}; set x xmin; set y ymax; read R Rp n; read G Gp n; read B Bp n; op add n n 1; op add R R -32; op add G G -32; op add B B -32; op mul R R 2.7234; op mul G G 2.7234; op mul B B 2.7234; draw color R G B 255 0 0; draw rect x y -1 1 0 0; op add x x 1; jump 12 lessThan x xmax; drawflush display1; set x xmin; op sub y y 1; select y equal y ymin ymax y; jump 12 lessThan n blockSize''', procLinks)
+
+	schem.add_block(Block(Content.LOGIC_PROCESSOR, procX, procY, codeConf, 0))
+
 def snakeBar(percent, length): #Slow but cute
 	bar=""
 	progress=round(percent*length)
@@ -154,7 +167,6 @@ allPixelR=allPixelG=allPixelB=allPixel=allPixelBlock=""
 pal=["d99d73","8c7fa9","ebeef5","b2c6d2","f7cba4","272727","8da1e3","f9a3c7","777777","53565c","cbd97f","f4ba6e","f3e979","7457ce","ff795e","ffaa5f","3a8f64","768a9a","e4ffd6","89769a"] #,"5e988d","df824d"
 
 #Channels
-if splitChannels: XDivisions,YDivisions =1,1
 blockWidth, blockHeight = int(width/XDivisions), int(height/YDivisions)
 
 #Pixels and Frames
@@ -260,7 +272,9 @@ for X in range(XDivisions):
 		elif not splitChannels: procPlaceCanvasMode(X, Y, allPixelBlock)
 
 		#Mlog RGB
-		# else: splitChannels: codeConf=""
+		else:
+			procPlaceRGBMode(X, Y, allPixelR, allPixelG, allPixelB)
+			allPixelR=allPixelG=allPixelB=""
 
 		allPixelBlock=""
 
@@ -274,11 +288,7 @@ if execute:
 	print(f"Schematic saved under",f"\033[38;2;144;164;255m{filename}.msch\033[0m")
 
 	#Load txt file
-	with open(filename+".txt", "w") as f:
-		if splitChannels:
-			f.write(allPixelR+"\n\n"+allPixelG+"\n\n"+allPixelB)
-		else:
-			f.write(allPixel)
+	with open(filename+".txt", "w") as f: f.write(allPixel)
 	print(f"Colors saved under",f"\033[38;2;144;164;255m{filename}.txt\033[0m")
 
 
