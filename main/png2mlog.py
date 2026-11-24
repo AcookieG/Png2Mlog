@@ -8,57 +8,6 @@ from timeit import default_timer
 import argparse
 from pymsch import Block, Content, Schematic, ProcessorConfig, ProcessorLink
 
-#schem init
-
-schem = Schematic()
-schem.set_tag('description', 'By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[]')
-parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
-
-#Parse init
-
-parser.add_argument("--xy", nargs=2, help="Width, Height. int int", dest="xy", default=(64,36), type=str)
-parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise divisions. int int", dest="XY", default=(32,6), type=str)
-parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", dest="frames", default=250, type=int)
-parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
-
-parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
-parser.add_argument("-c", "--channels", nargs="?", help="Do not split R, G and B color channels in three strings. bool", dest="splitChannels", default=True, type=bool)
-parser.add_argument("-p", "--palette", nargs="?", help="Do not apply Mindustry's 22 sorter colors. bool", dest="applyPalette", default=True, type=bool)
-parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. bool", dest="bottomProcs", default=False, type=bool)
-parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. bool", dest="save", default=False, type=bool)
-parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1.  bool", type=bool)
-
-parameters=parser.parse_args()
-[width, height] = parameters.xy
-[XDivisions, YDivisions] = parameters.XY
-width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
-frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
-filename, save = parameters.filename, parameters.save
-
-if parameters.splitChannels != True: splitChannels = False
-else: splitChannels = True
-if parameters.applyPalette != True: applyPalette = False
-else: applyPalette = True
-if parameters.bottomProcs != False: bottomProcs = True
-else: bottomProcs = False
-
-if applyPalette: splitChannels=False
-
-#Config (Deprecated)
-# if str(input(" | Use preset?\n(64x36, 32x6, 250, @1, filename, --Palette) (y/n) "))=="y":
-#	#preset
-#	width, height, XDivisions, YDivisions, frames, jumpedFrames, filename, splitChannels, applyPalette = 64, 36, 32, 6, 250, 1, "filename", False, True
-#else:
-#	#custom
-#	width, height, XDivisions, YDivisions=tuple(input(" | width, height, Length-wise divisions, cross-wise divisions: ").split(","))
-#	width, height, XDivisions, YDivisions=int(width), int(height), int(XDivisions), int(YDivisions)
-#	frames, jumpedFrames=tuple(input(" | frames, frame jump size: ").split(","))
-#	frames, jumpedFrames=int(frames), int(jumpedFrames)
-#	filename=str(input(" | filename: "))
-#	splitChannels=(str(input(" | Split channels?\n |     Will split R, G and B color channels in three strings. (y/n):"))=="y")
-#	applyPalette=(str(input(" | Apply Mindustry palette?\n |     Will apply Mindustry's 26 sorter colors. Output will be in base 22, in the same order as Vanilla. (y/n):"))=="y")
-
-
 ### --- Def ---
 
 def pixelToASCII(pixel):
@@ -84,14 +33,20 @@ def matchToPal(pixel,pal):
 		count+=1
 	return pickedColor
 
-def attention(issue, execute, text):
-	if issue and execute:
+def attention(issue, text):
+	if issue:
 		if str(input(f'''\033[38;2;255;144;12mWARNING!\033[0m
  | An issue with your parameters has been found: {text}
  | This may lead to a broken display.
  | Continue? (Y/n)''')).upper()=="Y": 0
-		else: execute=False; print(" | Parameters are being discarded.")
-	return execute
+		else: print(" | Parameters are being discarded."); return False
+	return True
+
+def attentionCheck():
+	for elem in attentionList:
+		if not elem:
+			return False
+	return True
 
 def loadFrames(frames, frame):
 	for i in range(frames):
@@ -157,6 +112,44 @@ def slideBar(percent, length, text, text2):
 	for i in range(length-progress): bar+=text2
 	return f"[{bar}]"
 
+### --- Init ---
+
+#schem
+
+schem = Schematic()
+schem.set_tag('description', 'By [pink]A[salmon]K[orange]a[gold]y[yellow]oC[]o[]o[]k[]ie[]')
+parser = argparse.ArgumentParser(prog="Png to MLog",description="Play mp4 videos in with Mindustry's processors")
+
+#Parse
+
+parser.add_argument("--xy", nargs=2, help="Width, Height. int int", dest="xy", default=(64,36), type=str)
+parser.add_argument("--XY", nargs=2, help="Length-wise divisions, Cross-wise divisions. int int", dest="XY", default=(32,6), type=str)
+parser.add_argument("-f", "--frames", nargs="?", help="Amount of frames. int", dest="frames", default=250, type=int)
+parser.add_argument("-j", "--jump", nargs="?", help="Frame jump size. int", dest="jumpedFrames", default=1, type=int)
+
+parser.add_argument("-o", "--output", "--filename", nargs="?", dest="filename", default="!name", type=str)
+parser.add_argument("-c", "--channels", nargs="?", help="Do not split R, G and B color channels in three strings. bool", dest="splitChannels", default=True, type=bool)
+parser.add_argument("-p", "--palette", nargs="?", help="Do not apply Mindustry's 22 sorter colors. bool", dest="applyPalette", default=True, type=bool)
+parser.add_argument("-b", "--bottom", nargs="?", help="Have all the processors only at the bottom of the image. Ignore if the height is above 18. Only works if --palette is True. bool", dest="bottomProcs", default=False, type=bool)
+parser.add_argument("-s", "--schematic", "--save", nargs="?", help="Save schematic as .schm file. bool", dest="save", default=False, type=bool)
+parser.add_argument("-d", "--default", nargs="?", help="Use preset: 64x36, 32x6, 250, @1.  bool", type=bool)
+
+parameters=parser.parse_args()
+[width, height] = parameters.xy
+[XDivisions, YDivisions] = parameters.XY
+width, height, XDivisions, YDivisions = int(width), int(height), int(XDivisions), int(YDivisions)
+frames, jumpedFrames = parameters.frames, parameters.jumpedFrames
+filename, save = parameters.filename, parameters.save
+
+if parameters.splitChannels != True: splitChannels = False
+else: splitChannels = True
+if parameters.applyPalette != True: applyPalette = False
+else: applyPalette = True
+if parameters.bottomProcs != False: bottomProcs = True
+else: bottomProcs = False
+
+if applyPalette: splitChannels=False
+
 
 ### --- Variables ---
 
@@ -177,19 +170,19 @@ PxPb=blockWidth*blockHeight*frames
 n=0
 
 #Warnings
-execute=True
-execute=(
-attention(height%2==1, execute, "Odd height")
-and attention(YDivisions%2==1, execute, "Odd YDivisions")
-and attention(XDivisions%2==1, execute, "Odd XDivisions")
+attentionList=[
+attention(height%2==1, "Odd height"),
+attention(YDivisions%2==1, "Odd YDivisions"),
+attention(XDivisions%2==1, "Odd XDivisions"),
 
-and attention(width/XDivisions%1 != 0, execute, f"Block width of {width/XDivisions} tiles")
-and attention(height/YDivisions%1 != 0, execute, f"Block width of {height/YDivisions} tiles")
+attention(width/XDivisions%1 != 0, f"Block width of {width/XDivisions} tiles"),
+attention(height/YDivisions%1 != 0, f"Block width of {height/YDivisions} tiles"),
 
-and attention(XDivisions==width, execute, "Width / Xdivisions = 1")
-and attention(bottomProcs and height>18, execute, "Bottom and height>18")
-and attention(PxPb>16000, execute, "Memory cap exceeded (16Kib Uncompressed)")
-)
+attention(XDivisions==width, "Width / Xdivisions = 1"),
+attention(bottomProcs and height>18, "Bottom and height>18"),
+attention(PxPb>16000, "Memory cap exceeded (16Kib Uncompressed)")
+]
+execute=attentionCheck()
 if not execute: frames=0
 
 #Images
